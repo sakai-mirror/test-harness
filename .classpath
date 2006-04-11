@@ -3,8 +3,6 @@
 	<classpathentry kind="src" path="src/java"/>
 	<classpathentry kind="src" path="src/conf"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" sourcepath="JAVA_DIR/spring-framework-1.1.5/src" kind="var" path="MAVEN_REPO/springframework/jars/spring-1.1.5.jar"/>
-	<classpathentry exported="true" sourcepath="JAVA_DIR/spring-framework-1.1.5/mock" kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.1.5.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
 	<classpathentry exported="true" sourcepath="/JAVA_DIR/jakarta-tomcat-5.5.9/src" kind="var" path="MAVEN_REPO/tomcat/jars/catalina-5.5.9.jar"/>
@@ -50,5 +48,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/tool-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/user-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/util"/>
+	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
