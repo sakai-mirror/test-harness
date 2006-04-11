@@ -152,6 +152,11 @@
             <version>h2.1.8</version>
         </dependency>
         <dependency>
+            <groupId>jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
             <groupId>odmg</groupId>
             <artifactId>odmg</artifactId>
             <version>3.0</version>
@@ -166,16 +171,8 @@
             <artifactId>xercesImpl</artifactId>
             <version>2.6.2</version>
         </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-id</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-thread_local</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
+
+	<!-- Sakai shared APIs -->
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-component</artifactId>
@@ -183,107 +180,17 @@
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-components-loader</artifactId>
+            <artifactId>sakai-component-api</artifactId>
             <version>${sakai.version}</version>
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-db</artifactId>
+            <artifactId>sakai-db-api</artifactId>
             <version>${sakai.version}</version>
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-log-configure</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-request</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-tool-registration</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-tool</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-active-tool</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-session</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-function</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-authentication</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-uuid-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-manager-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-type-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-superstructure-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-registry-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-edu-person-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-authorization-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-agent-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-legacy-bundle</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-jgroups</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-legacy-service</artifactId>
+            <artifactId>sakai-tool-api</artifactId>
             <version>${sakai.version}</version>
         </dependency>
         <dependency>
@@ -291,26 +198,17 @@
             <artifactId>sakai-metaobj-api</artifactId>
             <version>${sakai.version}</version>
         </dependency>
-        <dependency>
-            <groupId>jdom</groupId>
-            <artifactId>jdom</artifactId>
-            <version>1.0</version>
-        </dependency>
+
+
+	<!-- Sakai common (with tomcat) APIs -->
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-composite-component-data</artifactId>
+            <artifactId>sakai-util-log</artifactId>
             <version>${sakai.version}</version>
         </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-present-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>OKI</groupId>
-            <artifactId>OkiOSID</artifactId>
-            <version>2.0</version>
-        </dependency>
+
+	<!-- Sakai Tool APIs -->
+<!--
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-profile-api</artifactId>
@@ -366,6 +264,10 @@
             <artifactId>quartz</artifactId>
             <version>1.5.1</version>
         </dependency>
+
+-->
+
+<!--
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-sections-api</artifactId>
@@ -376,6 +278,9 @@
             <artifactId>sakai-sections-comp-shared-data-sakai21</artifactId>
             <version>${sakai.version}</version>
         </dependency>
+-->
+
+<!--
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-rwiki-service</artifactId>
@@ -386,7 +291,7 @@
             <artifactId>sakai-rwiki-model</artifactId>
             <version>${sakai.version}</version>
         </dependency>
-        
+-->        
     </dependencies>
 
     <developers>

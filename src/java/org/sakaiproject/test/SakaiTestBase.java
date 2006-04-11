@@ -36,9 +36,9 @@ import junit.framework.TestCase;
 import org.apache.catalina.loader.WebappClassLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.component.ComponentManager;
-import org.sakaiproject.api.kernel.session.Session;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
+import org.sakaiproject.component.api.ComponentManager;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * An extension of JUnit's TestCase that launches the Sakai component manager.
@@ -130,7 +130,7 @@ public abstract class SakaiTestBase extends TestCase {
 	 * @return The service, or null if the ID is not registered
 	 */
 	public static final Object getService(String beanId) {
-		return org.sakaiproject.api.kernel.component.cover.ComponentManager.get(beanId);
+		return org.sakaiproject.component.cover.ComponentManager.get(beanId);
 	}
 
 	/**
