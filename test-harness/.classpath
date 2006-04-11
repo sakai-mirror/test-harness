@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/test"/>
+	<classpathentry kind="src" path="src/java"/>
+	<classpathentry kind="src" path="src/conf"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" sourcepath="JAVA_DIR/spring-framework-1.1.5/src" kind="var" path="MAVEN_REPO/springframework/jars/spring-1.1.5.jar"/>
+	<classpathentry exported="true" sourcepath="JAVA_DIR/spring-framework-1.1.5/mock" kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.1.5.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
+	<classpathentry exported="true" sourcepath="/JAVA_DIR/jakarta-tomcat-5.5.9/src" kind="var" path="MAVEN_REPO/tomcat/jars/catalina-5.5.9.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/kernel"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/legacy-service"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/tomcat/jars/tomcat-util-5.5.9.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/tomcat/jars/naming-resources-5.5.9.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/servletapi/jars/servlet-api-2.4-20040521.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/portlet-api/jars/portlet-api-1.0.1.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.0.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-collections/jars/commons-collections-3.1.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-dbcp/jars/commons-dbcp-1.2.1.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-pool/jars/commons-pool-1.2.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-fileupload/jars/commons-fileupload-1.0.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/activation/jars/activation-1.0.2.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/javamail/jars/mail-1.3.1.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.6.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/hsqldb/jars/hsqldb-1.7.3.3.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/aopalliance/jars/aopalliance-1.0.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/cglib/jars/cglib-full-2.0.2.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/dom4j/jars/dom4j-1.6.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/ehcache/jars/ehcache-1.1.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-2.1.8.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/jdbc/jars/jdbc2_0-stdext-h2.1.8.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/jta/jars/jta-h2.1.8.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/odmg/jars/odmg-3.0.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/xalan/jars/xalan-2.6.0.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/xerces/jars/xercesImpl-2.6.2.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-tool-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-tool-registration-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-thread_local-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-syllabus-help-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-syllabus-component-shared-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-syllabus-api-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-session-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-sections-comp-shared-sakai21-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-sections-comp-shared-data-sakai21-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-sections-api-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-roster-component-shared-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-roster-api-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-request-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-profile-component-shared-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-profile-api-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-present-api-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-metaobj-api-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-log-configure-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-legacy-service-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-legacy-bundle-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-jgroups-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-id-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-function-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-db-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-comp-shared-scheduler-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-comp-shared-help-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-component-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-components-loader-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-common-uuid-api-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-common-type-api-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-common-superstructure-api-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-common-registry-api-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-common-manager-api-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-common-edu-person-api-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-common-composite-component-data-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-common-authorization-api-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-common-agent-api-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-authentication-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-active-tool-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/jdom/jars/jdom-1.0.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/OKI/jars/OkiOSID-2.0.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/quartz/jars/quartz-1.5.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-rwiki-service-TRUNK.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/sakaiproject/jars/sakai-rwiki-model-TRUNK.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
