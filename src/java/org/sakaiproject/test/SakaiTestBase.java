@@ -82,26 +82,24 @@ public abstract class SakaiTestBase extends TestCase {
 
 			// Initialize spring component manager
 			log.debug("Loading component manager via tomcat's classloader");
-			Class clazz = wcloader.loadClass(
-					"org.sakaiproject.component.kernel.component.SpringCompMgr");
+			Class clazz = wcloader.loadClass("org.sakaiproject.component.impl.SpringCompMgr");
 			Constructor constructor = clazz.getConstructor(new Class[] {ComponentManager.class});
 			compMgr = (ComponentManager)constructor.newInstance(new Object[] {null});
 			Method initMethod = clazz.getMethod("init", new Class[0]);
 			initMethod.invoke(compMgr, new Object[0]);
 		}
-		
-		// Sign in as admin
-		if(SessionManager.getCurrentSession() == null) {
-			SessionManager.startSession();
-			Session session = SessionManager.getCurrentSession();
-			session.setUserId("admin");
-		}
+
+		// Start a session (and set who you want to be in your test)
+		Session session = SessionManager.startSession();
+		session.setUserId("admin");
+		session.setUserEid("admin");
 	}
 
 	/**
 	 * Close the component manager when the tests finish.
 	 */
 	public static void oneTimeTearDown() {
+		SessionManager.getCurrentSession().invalidate();
 		if(compMgr != null) {
 			compMgr.close();
 		}
@@ -115,11 +113,19 @@ public abstract class SakaiTestBase extends TestCase {
 	 * @throws Exception
 	 */
 	private static String getTomcatHome() throws Exception {
-		String homeDir = System.getProperty("user.home");
-		File file = new File(homeDir + File.separatorChar + "build.properties");
-		FileInputStream fis = new FileInputStream(file);
-		PropertyResourceBundle rb = new PropertyResourceBundle(fis);
-		return rb.getString("maven.tomcat.home");
+		String testTomcatHome = System.getProperty("test.tomcat.home");
+		if ( testTomcatHome != null && testTomcatHome.length() > 0 ) {
+			log.debug("Using tomcat home: " + testTomcatHome);
+			return testTomcatHome;
+		} else {
+			String homeDir = System.getProperty("user.home");
+			File file = new File(homeDir + File.separatorChar + "build.properties");
+			FileInputStream fis = new FileInputStream(file);
+			PropertyResourceBundle rb = new PropertyResourceBundle(fis);
+			String tomcatHome = rb.getString("maven.tomcat.home");
+			log.debug("Tomcat home = " + tomcatHome);
+			return tomcatHome;
+		}
 	}
 	
 	/**
@@ -129,19 +135,19 @@ public abstract class SakaiTestBase extends TestCase {
 	 * 
 	 * @return The service, or null if the ID is not registered
 	 */
-	public static final Object getService(String beanId) {
-		return org.sakaiproject.component.cover.ComponentManager.get(beanId);
+	protected static final Object getService(String beanId) {
+		return compMgr.get(beanId);
 	}
 
 	/**
-	 * Convenience method to set the current user in sakai.  By default, the user
-	 * is admin.
+	 * Convenience method to set the current user in sakai.
 	 * 
 	 * @param userUid The user to become
 	 */
-	public static final void setUser(String userUid) {
+	protected final void setUser(String userUid) {
 		Session session = SessionManager.getCurrentSession();
-		session.setUserId(userUid);
+		session.setUserId("admin");
+		session.setUserEid("admin");
 	}
 	
 	/**
