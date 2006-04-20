@@ -54,8 +54,7 @@
         <dependency>
             <groupId>servletapi</groupId>
             <artifactId>servletapi</artifactId>
-            <version>2.4-20040521</version>
-            <url>http://java.sun.com/products/servlet/</url>
+            <version>2.4</version>
         </dependency>
         <dependency>
             <groupId>portlet-api</groupId>
