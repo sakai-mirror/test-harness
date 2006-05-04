@@ -22,7 +22,7 @@
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/cglib/jars/cglib-full-2.0.2.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/dom4j/jars/dom4j-1.6.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/ehcache/jars/ehcache-1.1.jar"/>
-	<classpathentry exported="true" kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-2.1.8.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.hibernate/jars/hibernate-3.1.3.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/jdbc/jars/jdbc2_0-stdext-h2.1.8.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/jta/jars/jta-h2.1.8.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/odmg/jars/odmg-3.0.jar"/>
