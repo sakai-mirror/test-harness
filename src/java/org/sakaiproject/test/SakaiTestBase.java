@@ -29,6 +29,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.PropertyResourceBundle;
 
 import junit.framework.TestCase;
@@ -36,9 +38,6 @@ import junit.framework.TestCase;
 import org.apache.catalina.loader.WebappClassLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * An extension of JUnit's TestCase that launches the Sakai component manager.
@@ -59,8 +58,18 @@ import org.sakaiproject.tool.cover.SessionManager;
 public abstract class SakaiTestBase extends TestCase {
 	private static final Log log = LogFactory.getLog(SakaiTestBase.class);
 
-	protected static ComponentManager compMgr;
+	protected static Object compMgr;
 	
+	private static URL[] getFileUrls(String dirPath) throws Exception {
+		File dir = new File(dirPath);
+		File[] jars = dir.listFiles();
+		URL[] urls = new URL[jars.length];
+		for(int i = 0; i < jars.length; i++) {
+			urls[i] = jars[i].toURL();
+			log.debug(urls[i]);
+		}
+		return urls;
+	}
 	/**
 	 * Initialize the component manager once for all tests, and log in as admin.
 	 */
@@ -73,35 +82,67 @@ public abstract class SakaiTestBase extends TestCase {
 			
 			// Set the system properties needed by the sakai component manager
 			System.setProperty("sakai.home", sakaiHome);
-			System.setProperty(ComponentManager.SAKAI_COMPONENTS_ROOT_SYS_PROP, componentsDir);
+			System.setProperty("sakai.components.root", componentsDir);
 
-			// Get a tomcat classloader
-			log.debug("Creating a tomcat classloader for component loading");
-			WebappClassLoader wcloader = new WebappClassLoader(Thread.currentThread().getContextClassLoader());
-			wcloader.start();
+			// Create tomcat-esque classloaders
+			log.debug("Creating a tomcat classloaders for component loading");
+			URLClassLoader  endorsedLoader = URLClassLoader.newInstance(getFileUrls(tomcatHome + "/common/endorsed/"), Thread.currentThread().getContextClassLoader());
+			URLClassLoader commonLoader = URLClassLoader.newInstance(getFileUrls(tomcatHome + "/common/lib/"), endorsedLoader);
+			URLClassLoader sharedLoader = URLClassLoader.newInstance(getFileUrls(tomcatHome + "/shared/lib/"), commonLoader);
+			final WebappClassLoader componentLoader = new WebappClassLoader(sharedLoader);
+			componentLoader.start();
 
 			// Initialize spring component manager
 			log.debug("Loading component manager via tomcat's classloader");
-			Class clazz = wcloader.loadClass("org.sakaiproject.component.impl.SpringCompMgr");
-			Constructor constructor = clazz.getConstructor(new Class[] {ComponentManager.class});
-			compMgr = (ComponentManager)constructor.newInstance(new Object[] {null});
-			Method initMethod = clazz.getMethod("init", new Class[0]);
-			initMethod.invoke(compMgr, new Object[0]);
+			final Class clazz = componentLoader.loadClass("org.sakaiproject.component.impl.SpringCompMgr", true);
+			Class compMgrClass = componentLoader.loadClass("org.sakaiproject.component.api.ComponentManager", true);
+			Constructor constructor = clazz.getConstructor(new Class[] {compMgrClass});
+			compMgr = constructor.newInstance(new Object[] {null});
+			log.debug("instantiating new thread for component init");
+			MyThread thread = new MyThread(componentLoader, clazz);
+			thread.run();
 		}
-
-		// Start a session (and set who you want to be in your test)
-		Session session = SessionManager.startSession();
-		session.setUserId("admin");
-		session.setUserEid("admin");
 	}
 
+protected static class MyThread extends Thread {
+	private Class clazz = null;
+	private ClassLoader cl = null;
+	public MyThread(ClassLoader cl, Class clazz) {
+		super();
+		this.clazz = clazz;
+		this.cl = cl;
+		this.setContextClassLoader(cl);
+	}
+	
+	public void run() {
+		Thread innerThread = new Thread(new Runnable() {
+			public void run() {
+				Method initMethod;
+				try {
+					log.debug("________________init in " + Thread.currentThread().getContextClassLoader());
+					initMethod = clazz.getMethod("init", new Class[0]);
+					initMethod.invoke(compMgr, new Object[0]);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			};
+		});
+		innerThread.run();
+	}
+
+}
 	/**
 	 * Close the component manager when the tests finish.
 	 */
 	public static void oneTimeTearDown() {
-		SessionManager.getCurrentSession().invalidate();
+		//SessionManager.getCurrentSession().invalidate();
 		if(compMgr != null) {
-			compMgr.close();
+			try {
+				Method closeMethod = compMgr.getClass().getMethod("close", new Class[0]);
+				closeMethod.invoke(compMgr, new Object[0]);
+			} catch (Exception e) {
+				log.error(e);
+			}
 		}
 	}
 
@@ -112,7 +153,7 @@ public abstract class SakaiTestBase extends TestCase {
 	 * @return
 	 * @throws Exception
 	 */
-	private static String getTomcatHome() throws Exception {
+	protected static String getTomcatHome() throws Exception {
 		String testTomcatHome = System.getProperty("test.tomcat.home");
 		if ( testTomcatHome != null && testTomcatHome.length() > 0 ) {
 			log.debug("Using tomcat home: " + testTomcatHome);
@@ -136,7 +177,13 @@ public abstract class SakaiTestBase extends TestCase {
 	 * @return The service, or null if the ID is not registered
 	 */
 	protected static final Object getService(String beanId) {
-		return compMgr.get(beanId);
+		try {
+			Method getMethod = compMgr.getClass().getMethod("get", new Class[] {String.class});
+			return getMethod.invoke(compMgr, new Object[] {beanId});
+		} catch (Exception e) {
+			log.error(e);
+			return null;
+		}
 	}
 
 	/**
@@ -145,9 +192,9 @@ public abstract class SakaiTestBase extends TestCase {
 	 * @param userUid The user to become
 	 */
 	protected final void setUser(String userUid) {
-		Session session = SessionManager.getCurrentSession();
-		session.setUserId("admin");
-		session.setUserEid("admin");
+//		Session session = SessionManager.getCurrentSession();
+//		session.setUserId("admin");
+//		session.setUserEid("admin");
 	}
 	
 	/**
