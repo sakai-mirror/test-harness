@@ -39,17 +39,17 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>catalina</artifactId>
-            <version>5.5.9</version>
+            <version>5.5.15</version>
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>naming-resources</artifactId>
-            <version>5.5.9</version>
+            <version>5.5.15</version>
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>tomcat-util</artifactId>
-            <version>5.5.9</version>
+            <version>5.5.15</version>
         </dependency>
         <dependency>
             <groupId>servletapi</groupId>

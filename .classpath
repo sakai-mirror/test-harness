@@ -5,7 +5,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
-	<classpathentry exported="true" sourcepath="/JAVA_DIR/jakarta-tomcat-5.5.9/src" kind="var" path="MAVEN_REPO/tomcat/jars/catalina-5.5.9.jar"/>
+	<classpathentry exported="true" sourcepath="/JAVA_DIR/src/apache-tomcat-5.5.17-src" kind="var" path="MAVEN_REPO/tomcat/jars/catalina-5.5.9.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/tomcat/jars/tomcat-util-5.5.9.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/tomcat/jars/naming-resources-5.5.9.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/portlet-api/jars/portlet-api-1.0.1.jar"/>
@@ -31,5 +31,6 @@
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/jdom/jars/jdom-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/servletapi/jars/servletapi-2.4.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/component-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

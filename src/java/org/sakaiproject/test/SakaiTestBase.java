@@ -1,26 +1,23 @@
 /**********************************************************************************
- *
+ * $URL$
  * $Id$
- *
  ***********************************************************************************
  *
- * Copyright (c) 2005 The Regents of the University of California
+ * Copyright (c) 2005, 2006 The Regents of the University of California
  * 
- * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
  * 
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *      http://www.opensource.org/licenses/ecl1.php
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
  *
  **********************************************************************************/
-
 package org.sakaiproject.test;
 
 import java.io.File;
@@ -35,7 +32,7 @@ import java.util.PropertyResourceBundle;
 
 import junit.framework.TestCase;
 
-import org.apache.catalina.loader.WebappClassLoader;
+import org.apache.catalina.loader.StandardClassLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -59,6 +56,7 @@ public abstract class SakaiTestBase extends TestCase {
 	private static final Log log = LogFactory.getLog(SakaiTestBase.class);
 
 	protected static Object compMgr;
+	protected static StandardClassLoader sharedLoader;
 	
 	private static URL[] getFileUrls(String dirPath) throws Exception {
 		File dir = new File(dirPath);
@@ -84,53 +82,22 @@ public abstract class SakaiTestBase extends TestCase {
 			System.setProperty("sakai.home", sakaiHome);
 			System.setProperty("sakai.components.root", componentsDir);
 
+			// Keep track of the current (integration testing) classloader
+			ClassLoader testClassLoader = Thread.currentThread().getContextClassLoader();
+			
 			// Create tomcat-esque classloaders
-			log.debug("Creating a tomcat classloaders for component loading");
-			URLClassLoader  endorsedLoader = URLClassLoader.newInstance(getFileUrls(tomcatHome + "/common/endorsed/"), Thread.currentThread().getContextClassLoader());
-			URLClassLoader commonLoader = URLClassLoader.newInstance(getFileUrls(tomcatHome + "/common/lib/"), endorsedLoader);
-			URLClassLoader sharedLoader = URLClassLoader.newInstance(getFileUrls(tomcatHome + "/shared/lib/"), commonLoader);
-			final WebappClassLoader componentLoader = new WebappClassLoader(sharedLoader);
-			componentLoader.start();
-
-			// Initialize spring component manager
-			log.debug("Loading component manager via tomcat's classloader");
-			final Class clazz = componentLoader.loadClass("org.sakaiproject.component.impl.SpringCompMgr", true);
-			Class compMgrClass = componentLoader.loadClass("org.sakaiproject.component.api.ComponentManager", true);
-			Constructor constructor = clazz.getConstructor(new Class[] {compMgrClass});
-			compMgr = constructor.newInstance(new Object[] {null});
-			log.debug("instantiating new thread for component init");
-			MyThread thread = new MyThread(componentLoader, clazz);
-			thread.run();
+			log.debug("Creating tomcat classloaders for component loading");
+			StandardClassLoader  endorsedLoader = new StandardClassLoader(getFileUrls(tomcatHome + "/common/endorsed/"), testClassLoader);
+			StandardClassLoader commonLoader = new StandardClassLoader(getFileUrls(tomcatHome + "/common/lib/"), endorsedLoader);
+			sharedLoader = new StandardClassLoader(getFileUrls(tomcatHome + "/shared/lib/"), commonLoader);
+			
+			// Initialize spring component manager using the shared classloader
+			Thread.currentThread().setContextClassLoader(sharedLoader);
+			final Class clazz = sharedLoader.loadClass("org.sakaiproject.component.cover.ComponentManager");
+			compMgr = clazz.getDeclaredMethod("getInstance", null).invoke(null, null);
 		}
 	}
 
-protected static class MyThread extends Thread {
-	private Class clazz = null;
-	private ClassLoader cl = null;
-	public MyThread(ClassLoader cl, Class clazz) {
-		super();
-		this.clazz = clazz;
-		this.cl = cl;
-		this.setContextClassLoader(cl);
-	}
-	
-	public void run() {
-		Thread innerThread = new Thread(new Runnable() {
-			public void run() {
-				Method initMethod;
-				try {
-					log.debug("________________init in " + Thread.currentThread().getContextClassLoader());
-					initMethod = clazz.getMethod("init", new Class[0]);
-					initMethod.invoke(compMgr, new Object[0]);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			};
-		});
-		innerThread.run();
-	}
-
-}
 	/**
 	 * Close the component manager when the tests finish.
 	 */
@@ -177,7 +144,9 @@ protected static class MyThread extends Thread {
 	 * @return The service, or null if the ID is not registered
 	 */
 	protected static final Object getService(String beanId) {
+		Thread.currentThread().setContextClassLoader(sharedLoader);
 		try {
+			log.debug("Resolving " + beanId + " using " + compMgr);
 			Method getMethod = compMgr.getClass().getMethod("get", new Class[] {String.class});
 			return getMethod.invoke(compMgr, new Object[] {beanId});
 		} catch (Exception e) {
@@ -219,5 +188,4 @@ protected static class MyThread extends Thread {
 	public static final Object getServiceProxy(Class clazz, InvocationHandler handler) {
 		return Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[] {clazz}, handler);
 	}
-
 }
