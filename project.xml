@@ -254,7 +254,7 @@
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-coursemanagement-hibernate</artifactId>
+            <artifactId>sakai-coursemanagement-hibernate-model</artifactId>
             <version>${sakai.version}</version>
         </dependency>
         <dependency>
