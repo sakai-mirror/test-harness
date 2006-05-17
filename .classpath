@@ -5,9 +5,9 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
-	<classpathentry exported="true" sourcepath="/JAVA_DIR/jakarta-tomcat-5.5.9/src" kind="var" path="MAVEN_REPO/tomcat/jars/catalina-5.5.9.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/tomcat/jars/catalina-tomcat-5.5.17.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/tomcat/jars/tomcat-util-5.5.9.jar"/>
-	<classpathentry exported="true" kind="var" path="MAVEN_REPO/tomcat/jars/naming-resources-5.5.9.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/tomcat/jars/naming-resources-tomcat-5.5.17.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/portlet-api/jars/portlet-api-1.0.1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-collections/jars/commons-collections-3.1.jar"/>
