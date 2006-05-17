@@ -22,19 +22,17 @@ package org.sakaiproject.test;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
-import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.PropertyResourceBundle;
 
-import junit.framework.TestCase;
 
-import org.apache.catalina.loader.StandardClassLoader;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import junit.framework.TestCase;
 
 /**
  * An extension of JUnit's TestCase that launches the Sakai component manager.
@@ -53,21 +51,10 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public abstract class SakaiTestBase extends TestCase {
-	private static final Log log = LogFactory.getLog(SakaiTestBase.class);
-
+	private static final TestLogger log = new TestLogger();
+	private static SakaiTestClassLoader sharedLoader;
 	protected static Object compMgr;
-	protected static StandardClassLoader sharedLoader;
 	
-	private static URL[] getFileUrls(String dirPath) throws Exception {
-		File dir = new File(dirPath);
-		File[] jars = dir.listFiles();
-		URL[] urls = new URL[jars.length];
-		for(int i = 0; i < jars.length; i++) {
-			urls[i] = jars[i].toURL();
-			log.debug(urls[i]);
-		}
-		return urls;
-	}
 	/**
 	 * Initialize the component manager once for all tests, and log in as admin.
 	 */
@@ -81,19 +68,31 @@ public abstract class SakaiTestBase extends TestCase {
 			// Set the system properties needed by the sakai component manager
 			System.setProperty("sakai.home", sakaiHome);
 			System.setProperty("sakai.components.root", componentsDir);
-
-			// Keep track of the current (integration testing) classloader
-			ClassLoader testClassLoader = Thread.currentThread().getContextClassLoader();
 			
-			// Create tomcat-esque classloaders
+			// Build classloader hierarchy
 			log.debug("Creating tomcat classloaders for component loading");
-			StandardClassLoader  endorsedLoader = new StandardClassLoader(getFileUrls(tomcatHome + "/common/endorsed/"), testClassLoader);
-			StandardClassLoader commonLoader = new StandardClassLoader(getFileUrls(tomcatHome + "/common/lib/"), endorsedLoader);
-			sharedLoader = new StandardClassLoader(getFileUrls(tomcatHome + "/shared/lib/"), commonLoader);
+
+			// Ensure that the ant classloader from maven is out of the picture (use this thread's parent, or the system classloader as the root)
+
+			ClassLoader mavenClassLoader = Thread.currentThread().getContextClassLoader();
+			ClassLoader systemClassLoader = mavenClassLoader.getParent();
+        	URL[] urls = getFileUrls(new String[] {tomcatHome + "common/endorsed/",
+        			tomcatHome + "common/lib/", tomcatHome + "shared/lib/"});
+
+			sharedLoader = new SakaiTestClassLoader(urls, systemClassLoader);
+			
+//			log.debug(systemClassLoader);
+//			log.debug("\t" + mavenClassLoader);
+//			log.debug("\t\t" + sharedLoader);
 			
 			// Initialize spring component manager using the shared classloader
 			Thread.currentThread().setContextClassLoader(sharedLoader);
-			final Class clazz = sharedLoader.loadClass("org.sakaiproject.component.cover.ComponentManager");
+			sharedLoader.loadClass("org.springframework.context.ApplicationContext");
+			sharedLoader.loadClass("org.sakaiproject.component.cover.ComponentManager");
+			
+			Class clazz = sharedLoader.loadClass("org.sakaiproject.component.cover.ComponentManager");
+			//Class clazz = Class.forName("org.sakaiproject.component.cover.ComponentManager",false, SakaiTestBase.sharedLoader);
+
 			compMgr = clazz.getDeclaredMethod("getInstance", null).invoke(null, null);
 		}
 	}
@@ -120,7 +119,7 @@ public abstract class SakaiTestBase extends TestCase {
 	 * @return
 	 * @throws Exception
 	 */
-	protected static String getTomcatHome() throws Exception {
+	private static String getTomcatHome() throws Exception {
 		String testTomcatHome = System.getProperty("test.tomcat.home");
 		if ( testTomcatHome != null && testTomcatHome.length() > 0 ) {
 			log.debug("Using tomcat home: " + testTomcatHome);
@@ -137,6 +136,37 @@ public abstract class SakaiTestBase extends TestCase {
 	}
 	
 	/**
+	 * Builds an array of file URLs from a directory path.
+	 * 
+	 * @param dirPath
+	 * @return
+	 * @throws Exception
+	 */
+	private static URL[] getFileUrls(String dirPath) throws Exception {
+		log.debug("getting jars from " + dirPath);
+		File dir = new File(dirPath);
+		File[] jars = dir.listFiles();
+		URL[] urls = new URL[jars.length];
+		for(int i = 0; i < jars.length; i++) {
+//			log.debug("Adding " + jars[i].toURL());
+			urls[i] = jars[i].toURL();
+		}
+		return urls;
+	}
+
+	private static URL[] getFileUrls(String[] dirPaths) throws Exception {
+		List list = new ArrayList();
+		for(int i=0; i<dirPaths.length; i++) {
+//			log.debug("list was size " + list.size());
+			list.addAll(Arrays.asList(getFileUrls(dirPaths[i])));
+//			log.debug("list is now size " + list.size());
+		}
+		URL[] urlArray = new URL[list.size()];
+		list.toArray(urlArray);
+		return urlArray;
+	}
+
+	/**
 	 * Convenience method to get a service bean from the Sakai component manager.
 	 * 
 	 * @param beanId The id of the service
@@ -144,7 +174,7 @@ public abstract class SakaiTestBase extends TestCase {
 	 * @return The service, or null if the ID is not registered
 	 */
 	protected static final Object getService(String beanId) {
-		Thread.currentThread().setContextClassLoader(sharedLoader);
+//		Thread.currentThread().setContextClassLoader(sharedLoader);
 		try {
 			log.debug("Resolving " + beanId + " using " + compMgr);
 			Method getMethod = compMgr.getClass().getMethod("get", new Class[] {String.class});

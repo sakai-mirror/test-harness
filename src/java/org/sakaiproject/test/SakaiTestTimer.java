@@ -20,16 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.test;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  * 
  */
 public class SakaiTestTimer {
-	private static final Log log = LogFactory.getLog(SakaiTestTimer.class);
+	private static final TestLogger log = new TestLogger();
 	private String task;
 	private long start;
 
