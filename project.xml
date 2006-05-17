@@ -49,7 +49,7 @@
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>tomcat-util</artifactId>
-            <version>5.5.9</version>
+            <version>${sakai.tomcat.version}</version>
         </dependency>
         <dependency>
             <groupId>servletapi</groupId>
