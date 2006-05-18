@@ -29,19 +29,19 @@ package org.sakaiproject.test;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class TestLogger {
-	void debug(Object obj) {
+	public void debug(Object obj) {
 		System.out.println("DEBUG: " + obj.toString());
 	}
 	
-	void info(Object obj) {
+	public void info(Object obj) {
 		System.out.println("INFO: " + obj.toString());
 	}
 
-	void warn(Object obj) {
+	public void warn(Object obj) {
 		System.out.println("WARN: " + obj.toString());
 	}
 
-	void error(Object obj) {
+	public void error(Object obj) {
 		System.out.println("ERROR: " + obj.toString());
 	}
 }

@@ -25,11 +25,9 @@ import java.io.FileInputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.PropertyResourceBundle;
+
+import org.apache.tools.ant.AntClassLoader;
 
 
 import junit.framework.TestCase;
@@ -52,7 +50,6 @@ import junit.framework.TestCase;
  */
 public abstract class SakaiTestBase extends TestCase {
 	private static final TestLogger log = new TestLogger();
-	private static SakaiTestClassLoader sharedLoader;
 	protected static Object compMgr;
 	
 	/**
@@ -70,30 +67,16 @@ public abstract class SakaiTestBase extends TestCase {
 			System.setProperty("sakai.components.root", componentsDir);
 			
 			// Build classloader hierarchy
-			log.debug("Creating tomcat classloaders for component loading");
+			log.debug("Adding sakai APIs to the current classloader for component loading");
 
-			// Ensure that the ant classloader from maven is out of the picture (use this thread's parent, or the system classloader as the root)
-
-			ClassLoader mavenClassLoader = Thread.currentThread().getContextClassLoader();
-			ClassLoader systemClassLoader = mavenClassLoader.getParent();
-        	URL[] urls = getFileUrls(new String[] {tomcatHome + "common/endorsed/",
-        			tomcatHome + "common/lib/", tomcatHome + "shared/lib/"});
-
-			sharedLoader = new SakaiTestClassLoader(urls, systemClassLoader);
+			// Add Sakai APIs to the current classloader
+			AntClassLoader mavenClassLoader = (AntClassLoader)Thread.currentThread().getContextClassLoader();
+			addJarsToClassPath(new String[] {tomcatHome + "common/endorsed/",
+        			tomcatHome + "common/lib/", tomcatHome + "shared/lib/"}, mavenClassLoader);
 			
-//			log.debug(systemClassLoader);
-//			log.debug("\t" + mavenClassLoader);
-//			log.debug("\t\t" + sharedLoader);
-			
-			// Initialize spring component manager using the shared classloader
-			Thread.currentThread().setContextClassLoader(sharedLoader);
-			sharedLoader.loadClass("org.springframework.context.ApplicationContext");
-			sharedLoader.loadClass("org.sakaiproject.component.cover.ComponentManager");
-			
-			Class clazz = sharedLoader.loadClass("org.sakaiproject.component.cover.ComponentManager");
-			//Class clazz = Class.forName("org.sakaiproject.component.cover.ComponentManager",false, SakaiTestBase.sharedLoader);
-
+			Class clazz = Class.forName("org.sakaiproject.component.cover.ComponentManager");
 			compMgr = clazz.getDeclaredMethod("getInstance", null).invoke(null, null);
+			log.debug("Finished starting the component manager");
 		}
 	}
 
@@ -142,30 +125,48 @@ public abstract class SakaiTestBase extends TestCase {
 	 * @return
 	 * @throws Exception
 	 */
-	private static URL[] getFileUrls(String dirPath) throws Exception {
-		log.debug("getting jars from " + dirPath);
-		File dir = new File(dirPath);
-		File[] jars = dir.listFiles();
-		URL[] urls = new URL[jars.length];
-		for(int i = 0; i < jars.length; i++) {
-//			log.debug("Adding " + jars[i].toURL());
-			urls[i] = jars[i].toURL();
-		}
-		return urls;
-	}
+//	private static URL[] getFileUrls(String dirPath) throws Exception {
+//		log.debug("getting jars from " + dirPath);
+//		File dir = new File(dirPath);
+//		File[] jars = dir.listFiles();
+//		URL[] urls = new URL[jars.length];
+//		for(int i = 0; i < jars.length; i++) {
+////			log.debug("Adding " + jars[i].toURL());
+//			urls[i] = jars[i].toURL();
+//		}
+//		return urls;
+//	}
 
-	private static URL[] getFileUrls(String[] dirPaths) throws Exception {
-		List list = new ArrayList();
+//	private static URL[] getFileUrls(String[] dirPaths) throws Exception {
+//		List list = new ArrayList();
+//		for(int i=0; i<dirPaths.length; i++) {
+////			log.debug("list was size " + list.size());
+//			list.addAll(Arrays.asList(getFileUrls(dirPaths[i])));
+////			log.debug("list is now size " + list.size());
+//		}
+//		URL[] urlArray = new URL[list.size()];
+//		list.toArray(urlArray);
+//		return urlArray;
+//	}
+
+	private static void addJarsToClassPath(String[] dirPaths, AntClassLoader classLoader) throws Exception {
+		Method addJar = classLoader.getClass().getDeclaredMethod("addPathElement", new Class[] {String.class});
+		addJar.setAccessible(true);
+		
 		for(int i=0; i<dirPaths.length; i++) {
-//			log.debug("list was size " + list.size());
-			list.addAll(Arrays.asList(getFileUrls(dirPaths[i])));
-//			log.debug("list is now size " + list.size());
+			String jarDir = dirPaths[i];
+			File[] jars = new File(jarDir).listFiles();
+			for(int j=0; j<jars.length; j++) {
+				File jar = jars[j];
+				if(jar.getName().startsWith("xml-apis")) {
+					continue;
+				}
+				addJar.invoke(classLoader, new Object[] {jar.getCanonicalPath()});
+			}
 		}
-		URL[] urlArray = new URL[list.size()];
-		list.toArray(urlArray);
-		return urlArray;
 	}
 
+	
 	/**
 	 * Convenience method to get a service bean from the Sakai component manager.
 	 * 
