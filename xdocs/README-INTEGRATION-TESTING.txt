@@ -48,18 +48,26 @@ Your test suite should call oneTimeSetup and oneTimeTearDown, like so:
 
 
 *** IMPORTANT NOTE #2: The test harness requires that you have a typical Sakai
-development environment configured.  It expects a build.properties file in your
-$HOME directory, and it expects an entry pointing to your maven.tomcat.home.  It
-also loads your sakai.properties file in maven.tomcat.home/sakai/.  So, if your
-sakai.properties is configured to use an oracle database, for instance, you need
-to add a dependency on the appropriate oracle driver to your integration testing
-project.  You should also not care about the data in this database, since
-failing or poorly written tests (those that don't clean up after themselves) may
-leave garbage data in your DB.  Using an in-memory hsql database is recommended.
+development environment configured.  It expects either:
+a) a 'test.tomcat.home' property pointing to a tomcat instance with all of the sakai
+components deployed
+b) a build.properties file in your $HOME directory, where it can find an entry pointing
+to your maven.tomcat.home.
+
+The test harness also loads your sakai.properties file in either
+${maven.tomcat.home}/sakai/ or ${test.tomcat.home}/sakai.
+
+If your sakai.properties is configured to use an oracle database, for instance, you
+need to add a dependency on the appropriate oracle driver to your integration
+testing project.  Understand that the data in this database will be modified by
+integration tests, and failing or poorly written tests (those that don't clean up after
+themselves) may leave garbage in your DB.  Using an in-memory hsql database is
+recommended.
 
 *** IMPORTANT NOTE #3: For some as yet unknown reason, you can't use
-commons logging in your test classes.  Don't import it, and don't include it in your
-maven dependencies for your integration testing project.
+commons logging or log4j in your test classes.  Don't import it, and don't include it in your
+maven dependencies for your integration testing project.  I'm working on fixing this
+limitation.
 
 5) Integration tests run as a standalone maven goal named 'itest'.  It can only
 be run on a fully built and deployed Sakai.  When running 'itest ', you must
