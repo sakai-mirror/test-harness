@@ -1,44 +1,43 @@
 /**********************************************************************************
- *
+ * $URL$
  * $Id$
- *
  ***********************************************************************************
  *
- * Copyright (c) 2005 The Regents of the University of California
+ * Copyright (c) 2005, 2006 The Regents of the University of California
  * 
- * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
  * 
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *      http://www.opensource.org/licenses/ecl1.php
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
  *
  **********************************************************************************/
-
 package org.sakaiproject.test;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.PropertyResourceBundle;
 
-import junit.framework.TestCase;
-
-import org.apache.catalina.loader.WebappClassLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
+
+
+import junit.framework.TestCase;
 
 /**
  * An extension of JUnit's TestCase that launches the Sakai component manager.
@@ -58,8 +57,7 @@ import org.sakaiproject.tool.cover.SessionManager;
  */
 public abstract class SakaiTestBase extends TestCase {
 	private static final Log log = LogFactory.getLog(SakaiTestBase.class);
-
-	protected static ComponentManager compMgr;
+	protected static Object compMgr;
 	
 	/**
 	 * Initialize the component manager once for all tests, and log in as admin.
@@ -73,35 +71,39 @@ public abstract class SakaiTestBase extends TestCase {
 			
 			// Set the system properties needed by the sakai component manager
 			System.setProperty("sakai.home", sakaiHome);
-			System.setProperty(ComponentManager.SAKAI_COMPONENTS_ROOT_SYS_PROP, componentsDir);
+			System.setProperty("sakai.components.root", componentsDir);
 
-			// Get a tomcat classloader
-			log.debug("Creating a tomcat classloader for component loading");
-			WebappClassLoader wcloader = new WebappClassLoader(Thread.currentThread().getContextClassLoader());
-			wcloader.start();
+			log.debug("Starting the component manager");
 
-			// Initialize spring component manager
-			log.debug("Loading component manager via tomcat's classloader");
-			Class clazz = wcloader.loadClass("org.sakaiproject.component.impl.SpringCompMgr");
-			Constructor constructor = clazz.getConstructor(new Class[] {ComponentManager.class});
-			compMgr = (ComponentManager)constructor.newInstance(new Object[] {null});
-			Method initMethod = clazz.getMethod("init", new Class[0]);
-			initMethod.invoke(compMgr, new Object[0]);
+			// Add the sakai jars to the current classpath.  Note:  We are limited to using the sun jvm now
+			URL[] sakaiUrls = getJarUrls(new String[] {tomcatHome + "common/endorsed/",
+					tomcatHome + "common/lib/", tomcatHome + "shared/lib/"});
+			URLClassLoader appClassLoader = (URLClassLoader)sun.misc.Launcher.getLauncher().getClassLoader();
+			Method addMethod = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] {URL.class});
+			addMethod.setAccessible(true);
+			for(int i=0; i<sakaiUrls.length; i++) {
+				addMethod.invoke(appClassLoader, new Object[] {sakaiUrls[i]});
+			}
+			
+			Class clazz = Class.forName("org.sakaiproject.component.cover.ComponentManager");
+			compMgr = clazz.getDeclaredMethod("getInstance", null).invoke(null, null);
+
+			log.debug("Finished starting the component manager");
 		}
-
-		// Start a session (and set who you want to be in your test)
-		Session session = SessionManager.startSession();
-		session.setUserId("admin");
-		session.setUserEid("admin");
 	}
 
 	/**
 	 * Close the component manager when the tests finish.
 	 */
 	public static void oneTimeTearDown() {
-		SessionManager.getCurrentSession().invalidate();
+		//SessionManager.getCurrentSession().invalidate();
 		if(compMgr != null) {
-			compMgr.close();
+			try {
+				Method closeMethod = compMgr.getClass().getMethod("close", new Class[0]);
+				closeMethod.invoke(compMgr, new Object[0]);
+			} catch (Exception e) {
+				log.error(e);
+			}
 		}
 	}
 
@@ -129,6 +131,43 @@ public abstract class SakaiTestBase extends TestCase {
 	}
 	
 	/**
+	 * Builds an array of file URLs from a directory path.
+	 * 
+	 * @param dirPath
+	 * @return
+	 * @throws Exception
+	 */
+	private static URL[] getJarUrls(String dirPath) throws Exception {
+		File dir = new File(dirPath);
+		File[] jars = dir.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				if(pathname.getName().startsWith("xml-apis")) {
+					return false;
+				}
+				return true;
+			}
+		});
+		URL[] urls = new URL[jars.length];
+		for(int i = 0; i < jars.length; i++) {
+			urls[i] = jars[i].toURL();
+		}
+		return urls;
+	}
+
+	private static URL[] getJarUrls(String[] dirPaths) throws Exception {
+		List jarList = new ArrayList();
+		
+		// Add all of the tomcat jars
+		for(int i=0; i<dirPaths.length; i++) {
+			jarList.addAll(Arrays.asList(getJarUrls(dirPaths[i])));
+		}
+
+		URL[] urlArray = new URL[jarList.size()];
+		jarList.toArray(urlArray);
+		return urlArray;
+	}
+	
+	/**
 	 * Convenience method to get a service bean from the Sakai component manager.
 	 * 
 	 * @param beanId The id of the service
@@ -136,18 +175,13 @@ public abstract class SakaiTestBase extends TestCase {
 	 * @return The service, or null if the ID is not registered
 	 */
 	protected static final Object getService(String beanId) {
-		return compMgr.get(beanId);
-	}
-
-	/**
-	 * Convenience method to set the current user in sakai.
-	 * 
-	 * @param userUid The user to become
-	 */
-	protected final void setUser(String userUid) {
-		Session session = SessionManager.getCurrentSession();
-		session.setUserId("admin");
-		session.setUserEid("admin");
+		try {
+			Method getMethod = compMgr.getClass().getMethod("get", new Class[] {String.class});
+			return getMethod.invoke(compMgr, new Object[] {beanId});
+		} catch (Exception e) {
+			log.error(e);
+			return null;
+		}
 	}
 	
 	/**
@@ -172,5 +206,4 @@ public abstract class SakaiTestBase extends TestCase {
 	public static final Object getServiceProxy(Class clazz, InvocationHandler handler) {
 		return Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[] {clazz}, handler);
 	}
-
 }
