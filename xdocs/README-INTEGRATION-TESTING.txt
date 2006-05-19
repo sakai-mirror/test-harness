@@ -19,7 +19,7 @@ maven.test.skip=true
 ### OPTIONAL PROPERTIES ###
 maven.junit.format=plain
 maven.junit.usefile=false
-maven.junit.jvmargs=-Xms128m -Xmx256m -verbose
+maven.junit.jvmargs=-Xms256m -Xmx256m
 
 4) Create a src/test directory and add your JUnit tests.  Your unit test cases
 should extend org.sakaiproject.test.SakaiTestBase.
@@ -63,11 +63,6 @@ testing project.  Understand that the data in this database will be modified by
 integration tests, and failing or poorly written tests (those that don't clean up after
 themselves) may leave garbage in your DB.  Using an in-memory hsql database is
 recommended.
-
-*** IMPORTANT NOTE #3: For some as yet unknown reason, you can't use
-commons logging or log4j in your test classes.  Don't import it, and don't include it in your
-maven dependencies for your integration testing project.  I'm working on fixing this
-limitation.
 
 5) Integration tests run as a standalone maven goal named 'itest'.  It can only
 be run on a fully built and deployed Sakai.  When running 'itest ', you must

@@ -33,6 +33,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.PropertyResourceBundle;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 import junit.framework.TestCase;
 
@@ -53,8 +56,7 @@ import junit.framework.TestCase;
  *
  */
 public abstract class SakaiTestBase extends TestCase {
-	// We can't use commons logging in test classes due to some strange classloading issue.
-	private static final TestLogger log = new TestLogger();
+	private static final Log log = LogFactory.getLog(SakaiTestBase.class);
 	protected static Object compMgr;
 	
 	/**
@@ -71,11 +73,9 @@ public abstract class SakaiTestBase extends TestCase {
 			System.setProperty("sakai.home", sakaiHome);
 			System.setProperty("sakai.components.root", componentsDir);
 
-			log.debug("This thread's classloader = " + Thread.currentThread().getContextClassLoader());
-			log.debug("This thread's classloader's parent = " + Thread.currentThread().getContextClassLoader().getParent());
+			log.debug("Starting the component manager");
 
-			// Add the sakai jars to the current classpath
-			// Note:  We are limited to using the sun jvm now
+			// Add the sakai jars to the current classpath.  Note:  We are limited to using the sun jvm now
 			URL[] sakaiUrls = getJarUrls(new String[] {tomcatHome + "common/endorsed/",
 					tomcatHome + "common/lib/", tomcatHome + "shared/lib/"});
 			URLClassLoader appClassLoader = (URLClassLoader)sun.misc.Launcher.getLauncher().getClassLoader();
@@ -87,6 +87,7 @@ public abstract class SakaiTestBase extends TestCase {
 			
 			Class clazz = Class.forName("org.sakaiproject.component.cover.ComponentManager");
 			compMgr = clazz.getDeclaredMethod("getInstance", null).invoke(null, null);
+
 			log.debug("Finished starting the component manager");
 		}
 	}
@@ -137,7 +138,6 @@ public abstract class SakaiTestBase extends TestCase {
 	 * @throws Exception
 	 */
 	private static URL[] getJarUrls(String dirPath) throws Exception {
-		log.debug("getting jars from " + dirPath);
 		File dir = new File(dirPath);
 		File[] jars = dir.listFiles(new FileFilter() {
 			public boolean accept(File pathname) {
