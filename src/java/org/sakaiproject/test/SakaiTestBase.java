@@ -21,13 +21,17 @@
 package org.sakaiproject.test;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.PropertyResourceBundle;
-
-import org.apache.tools.ant.AntClassLoader;
 
 
 import junit.framework.TestCase;
@@ -49,6 +53,7 @@ import junit.framework.TestCase;
  *
  */
 public abstract class SakaiTestBase extends TestCase {
+	// We can't use commons logging in test classes due to some strange classloading issue.
 	private static final TestLogger log = new TestLogger();
 	protected static Object compMgr;
 	
@@ -65,14 +70,20 @@ public abstract class SakaiTestBase extends TestCase {
 			// Set the system properties needed by the sakai component manager
 			System.setProperty("sakai.home", sakaiHome);
 			System.setProperty("sakai.components.root", componentsDir);
-			
-			// Build classloader hierarchy
-			log.debug("Adding sakai APIs to the current classloader for component loading");
 
-			// Add Sakai APIs to the current classloader
-			AntClassLoader mavenClassLoader = (AntClassLoader)Thread.currentThread().getContextClassLoader();
-			addJarsToClassPath(new String[] {tomcatHome + "common/endorsed/",
-        			tomcatHome + "common/lib/", tomcatHome + "shared/lib/"}, mavenClassLoader);
+			log.debug("This thread's classloader = " + Thread.currentThread().getContextClassLoader());
+			log.debug("This thread's classloader's parent = " + Thread.currentThread().getContextClassLoader().getParent());
+
+			// Add the sakai jars to the current classpath
+			// Note:  We are limited to using the sun jvm now
+			URL[] sakaiUrls = getJarUrls(new String[] {tomcatHome + "common/endorsed/",
+					tomcatHome + "common/lib/", tomcatHome + "shared/lib/"});
+			URLClassLoader appClassLoader = (URLClassLoader)sun.misc.Launcher.getLauncher().getClassLoader();
+			Method addMethod = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] {URL.class});
+			addMethod.setAccessible(true);
+			for(int i=0; i<sakaiUrls.length; i++) {
+				addMethod.invoke(appClassLoader, new Object[] {sakaiUrls[i]});
+			}
 			
 			Class clazz = Class.forName("org.sakaiproject.component.cover.ComponentManager");
 			compMgr = clazz.getDeclaredMethod("getInstance", null).invoke(null, null);
@@ -125,47 +136,36 @@ public abstract class SakaiTestBase extends TestCase {
 	 * @return
 	 * @throws Exception
 	 */
-//	private static URL[] getFileUrls(String dirPath) throws Exception {
-//		log.debug("getting jars from " + dirPath);
-//		File dir = new File(dirPath);
-//		File[] jars = dir.listFiles();
-//		URL[] urls = new URL[jars.length];
-//		for(int i = 0; i < jars.length; i++) {
-////			log.debug("Adding " + jars[i].toURL());
-//			urls[i] = jars[i].toURL();
-//		}
-//		return urls;
-//	}
-
-//	private static URL[] getFileUrls(String[] dirPaths) throws Exception {
-//		List list = new ArrayList();
-//		for(int i=0; i<dirPaths.length; i++) {
-////			log.debug("list was size " + list.size());
-//			list.addAll(Arrays.asList(getFileUrls(dirPaths[i])));
-////			log.debug("list is now size " + list.size());
-//		}
-//		URL[] urlArray = new URL[list.size()];
-//		list.toArray(urlArray);
-//		return urlArray;
-//	}
-
-	private static void addJarsToClassPath(String[] dirPaths, AntClassLoader classLoader) throws Exception {
-		Method addJar = classLoader.getClass().getDeclaredMethod("addPathElement", new Class[] {String.class});
-		addJar.setAccessible(true);
-		
-		for(int i=0; i<dirPaths.length; i++) {
-			String jarDir = dirPaths[i];
-			File[] jars = new File(jarDir).listFiles();
-			for(int j=0; j<jars.length; j++) {
-				File jar = jars[j];
-				if(jar.getName().startsWith("xml-apis")) {
-					continue;
+	private static URL[] getJarUrls(String dirPath) throws Exception {
+		log.debug("getting jars from " + dirPath);
+		File dir = new File(dirPath);
+		File[] jars = dir.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				if(pathname.getName().startsWith("xml-apis")) {
+					return false;
 				}
-				addJar.invoke(classLoader, new Object[] {jar.getCanonicalPath()});
+				return true;
 			}
+		});
+		URL[] urls = new URL[jars.length];
+		for(int i = 0; i < jars.length; i++) {
+			urls[i] = jars[i].toURL();
 		}
+		return urls;
 	}
 
+	private static URL[] getJarUrls(String[] dirPaths) throws Exception {
+		List jarList = new ArrayList();
+		
+		// Add all of the tomcat jars
+		for(int i=0; i<dirPaths.length; i++) {
+			jarList.addAll(Arrays.asList(getJarUrls(dirPaths[i])));
+		}
+
+		URL[] urlArray = new URL[jarList.size()];
+		jarList.toArray(urlArray);
+		return urlArray;
+	}
 	
 	/**
 	 * Convenience method to get a service bean from the Sakai component manager.
@@ -175,26 +175,13 @@ public abstract class SakaiTestBase extends TestCase {
 	 * @return The service, or null if the ID is not registered
 	 */
 	protected static final Object getService(String beanId) {
-//		Thread.currentThread().setContextClassLoader(sharedLoader);
 		try {
-			log.debug("Resolving " + beanId + " using " + compMgr);
 			Method getMethod = compMgr.getClass().getMethod("get", new Class[] {String.class});
 			return getMethod.invoke(compMgr, new Object[] {beanId});
 		} catch (Exception e) {
 			log.error(e);
 			return null;
 		}
-	}
-
-	/**
-	 * Convenience method to set the current user in sakai.
-	 * 
-	 * @param userUid The user to become
-	 */
-	protected final void setUser(String userUid) {
-//		Session session = SessionManager.getCurrentSession();
-//		session.setUserId("admin");
-//		session.setUserEid("admin");
 	}
 	
 	/**
