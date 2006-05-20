@@ -78,7 +78,7 @@ public abstract class SakaiTestBase extends TestCase {
 			// Add the sakai jars to the current classpath.  Note:  We are limited to using the sun jvm now
 			URL[] sakaiUrls = getJarUrls(new String[] {tomcatHome + "common/endorsed/",
 					tomcatHome + "common/lib/", tomcatHome + "shared/lib/"});
-			URLClassLoader appClassLoader = (URLClassLoader)sun.misc.Launcher.getLauncher().getClassLoader();
+			URLClassLoader appClassLoader = (URLClassLoader)Thread.currentThread().getContextClassLoader();
 			Method addMethod = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] {URL.class});
 			addMethod.setAccessible(true);
 			for(int i=0; i<sakaiUrls.length; i++) {
