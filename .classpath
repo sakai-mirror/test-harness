@@ -6,6 +6,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/component-api"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/ant/jars/ant-1.5.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
