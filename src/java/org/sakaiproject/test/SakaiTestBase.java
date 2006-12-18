@@ -86,7 +86,7 @@ public abstract class SakaiTestBase extends TestCase {
 			}
 			
 			Class clazz = Class.forName("org.sakaiproject.component.cover.ComponentManager");
-			compMgr = clazz.getDeclaredMethod("getInstance", null).invoke(null, null);
+			compMgr = clazz.getDeclaredMethod("getInstance", (Class[])null).invoke((Object[])null, (Object[])null);
 
 			log.debug("Finished starting the component manager");
 		}
