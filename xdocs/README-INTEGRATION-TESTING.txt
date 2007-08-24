@@ -3,26 +3,21 @@ services.  While all projects should include unit testing, integration testing
 is an important tool for ensuring that your tool or service is working properly
 within a (simulated) sakai environment.
 
-You can follow these steps add integration tests to your sakai project:
+You can follow these steps to add integration tests to your sakai project:
 
 1) Create a new maven project in your module named *integration-test (e.g.
-myproject-integration-test).
+myproject-integration-test). Do NOT include this subproject in the "modules"
+list of your top-level project's "pom.xml". If you do, every normal build
+will automatically try to build and run integration tests. This will make you
+and others unhappy.
 
-2) Use the project.sample.xml file as a template for setting up your build.
+2) Use the pom.sample.xml file as a template for setting up your build.
 
-3) Configure your build properties in project.properties:
-
-### REQUIRED PROPERTIES FOR INTEGRATION TESTING ###
-maven.junit.fork=yes
-maven.test.skip=true
-
-### OPTIONAL PROPERTIES ###
-maven.junit.format=plain
-maven.junit.usefile=false
-maven.junit.jvmargs=-Xms256m -Xmx256m
-
-4) Create a src/test directory and add your JUnit tests.  Your unit test cases
-should extend org.sakaiproject.test.SakaiTestBase.
+3) Create a src/test directory and add your JUnit tests. The Java source
+files should be rooted at "src/test/java". Any resources needed by your
+tests (a log4j.properties file, for example) should be kept at
+"src/test/resources". Your unit test cases should extend
+org.sakaiproject.test.SakaiTestBase.
 
 *** IMPORTANT NOTE #1: If you intend to write multiple test cases (java classes
 that extend org.sakaiproject.test.SakaiTestBase), please ensure that your
@@ -51,10 +46,10 @@ Your test suite should call oneTimeSetup and oneTimeTearDown, like so:
 development environment configured.  It expects either:
 a) a 'test.tomcat.home' property pointing to a tomcat instance with all of the sakai
 components deployed
-b) a build.properties file in your $HOME directory, where it can find an entry pointing
-to your maven.tomcat.home.
+b) a ,m2/settings.xml file in your $HOME directory, where it can find a default
+profile with a "maven.tomcat.home" property set.
 
-The test harness also loads your sakai.properties file in either
+The test harness also loads your sakai.properties file from either
 ${maven.tomcat.home}/sakai/ or ${test.tomcat.home}/sakai.
 
 If your sakai.properties is configured to use an oracle database, for instance, you
@@ -64,15 +59,37 @@ integration tests, and failing or poorly written tests (those that don't clean u
 themselves) may leave garbage in your DB.  Using an in-memory hsql database is
 recommended.
 
-5) Integration tests run as a standalone maven goal named 'itest'.  It can only
-be run on a fully built and deployed Sakai.  When running 'itest ', you must
-also override the directive in the test harness that skips running these tests
-during a normal build (since the tests will fail if the full deployment is not
-in place).
+4) To run integration tests, simply start from the integration-test directory
+and run a normal maven test goal:
 
-maven -Dmaven.test.skip=false itest
+mvn clean test
+
+--------------------------------------------------------------------------------
+
+Your ".m2/settings.xml" file can be used to set some other useful properties
+for Maven-run tests. Here's an example:
+
+<settings>
+  <profiles>
+    <profile>
+      <id>sakai</id>
+      <properties>
+        <maven.tomcat.home>${env.CATALINA_HOME}</maven.tomcat.home>
+        <!-- Provides fuller reporting than the default. -->
+        <surefire.reportFormat>plain</surefire.reportFormat>
+        <!-- Display test results in normal output rather than in report files. -->
+        <surefire.useFile>false</surefire.useFile>
+      </properties>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>sakai</activeProfile>
+  </activeProfiles>
+</settings>
 
 --------------------------------------------------------------------------------
 
 Josh Holtzman
 jholtzman@berkeley.edu
+
+Revised for Maven 2 by Ray Davis, ray@media.berkeley.edu
