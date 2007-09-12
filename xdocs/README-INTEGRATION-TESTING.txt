@@ -44,13 +44,14 @@ Your test suite should call oneTimeSetup and oneTimeTearDown, like so:
 
 *** IMPORTANT NOTE #2: The test harness requires that you have a typical Sakai
 development environment configured.  It expects either:
-a) a 'test.tomcat.home' property pointing to a tomcat instance with all of the sakai
+a) a "test.tomcat.home" property pointing to a tomcat instance with all of the sakai
 components deployed
 b) a ,m2/settings.xml file in your $HOME directory, where it can find a default
 profile with a "maven.tomcat.home" property set.
 
-The test harness also loads your sakai.properties file from either
-${maven.tomcat.home}/sakai/ or ${test.tomcat.home}/sakai.
+If a "test.sakai.home" system property is defined, the test harness loads your
+sakai.properties file from that directory. Otherwise it uses the file found in
+"${test.tomcat.home}/sakai" or "${maven.tomcat.home}/sakai/".
 
 If your sakai.properties is configured to use an oracle database, for instance, you
 need to add a dependency on the appropriate oracle driver to your integration

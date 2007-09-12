@@ -66,7 +66,7 @@ public abstract class SakaiTestBase extends TestCase {
 		if(compMgr == null) {
 			// Find the sakai home dir
 			String tomcatHome = getTomcatHome();
-			String sakaiHome = tomcatHome + File.separatorChar + "sakai" + File.separatorChar;
+			String sakaiHome = getSakaiHome(tomcatHome);
 			String componentsDir = tomcatHome + "components/";
 			
 			// Set the system properties needed by the sakai component manager
@@ -128,6 +128,14 @@ public abstract class SakaiTestBase extends TestCase {
 			log.debug("Tomcat home = " + tomcatHome);
 			return tomcatHome;
 		}
+	}
+	
+	private static String getSakaiHome(String tomcatHome) throws Exception {
+		String sakaiHome = System.getProperty("test.sakai.home");
+		if (sakaiHome == null) {
+			sakaiHome = tomcatHome + File.separatorChar + "sakai" + File.separatorChar;
+		}
+		return sakaiHome;
 	}
 	
 	/**
