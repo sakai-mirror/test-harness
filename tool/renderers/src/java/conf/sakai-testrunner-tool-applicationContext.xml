@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+<bean id="componentsTemplateResourceBase" class="java.lang.String">
+    <constructor-arg value="/" />
+  </bean>
+
+<!-- For security purposes, only beans listed in the comma separated value list
+			may be the target of EL operations coming in over the request -->
+	<bean parent="requestAddressibleParent">
+		<property name="value" value="AdminTestRunnerBean, TestStarterBean"/>
+	</bean>
+  
+  <bean id="ignoreFossilizedValues" class="uk.org.ponder.springutil.BooleanFactory">
+    <property name="value" value="true" />
+  </bean>
+  
+  <bean name="copyPreservingBeans" class="uk.org.ponder.springutil.StringListFactory">
+    <property name="strings">
+      <value></value>
+    </property>
+  </bean>
+  
+  <bean id="myBeanScope" parent="beanScopeParent">
+	<property name="copyPreservingBeans" value="TestTrackerBean" />
+	<property name="exclusive" value="true" />
+</bean>
+
+  
+
+</beans>

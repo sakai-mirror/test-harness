@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- Test Runner service bean - AZ -->
+<beans>
+
+   <!-- The primary test runner service -->
+   <bean id="org.sakaiproject.testrunner.TestRunnerService"
+      class="org.sakaiproject.testrunner.impl.TestRunnerServiceImpl" 
+      init-method="init">
+      <property name="enabled" value="true" />
+      <property name="testIntegration" value="true" />
+      <property name="testLoad" value="false" />
+      <property name="testValidity" value="false" />
+      <property name="testDelaySeconds" value="-1" />
+   </bean>
+
+   <!-- create a sample service which runs some tests using the service -->
+   <bean class="org.sakaiproject.testrunner.impl.SampleTestRunner" 
+      init-method="init">
+      <property name="testRunnerService" ref="org.sakaiproject.testrunner.TestRunnerService" />
+   </bean>
+
+   <!-- test out running some tests from spring -->
+   <bean class="org.sakaiproject.testrunner.util.TestExecutor">
+      <property name="testClassname" 
+      	 value="org.sakaiproject.testrunner.impl.tests.SimpleTest" />
+      <property name="testType" value="testrunner.integration" />
+      <property name="testDelaySeconds" value="0" />
+   </bean>
+
+   <!-- test out running and registering tests from spring -->
+   <bean class="org.sakaiproject.testrunner.util.TestExecutor">
+      <property name="testClassname"
+         value="org.sakaiproject.testrunner.impl.tests.SampleTestSakaiUser" />
+      <property name="testType" value="testrunner.integration" />
+      <property name="registerTest" value="true" />
+      <property name="testDelaySeconds" value="0" />
+   </bean>
+
+</beans>

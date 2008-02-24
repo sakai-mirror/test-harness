@@ -1,0 +1,51 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+</head>
+<body>
+<div class="portletBody">
+<h3>The Test Runner</h3>
+
+<div>
+ <a href="" rsf:id="test-results-link">View Test Results</a>
+</div>
+
+<div>
+  <span rsf:id="tests-enabled-message">Tests are (enabled | not enabled).</span>
+  <form rsf:id="enable-disable-form">
+    <span>
+      <input type="submit" rsf:id="enable-disable-button" value="Disable Testing" />
+    </span>
+  </form>
+</div>
+
+<div> 
+  <span rsf:id="autodelay-message">Autodelay is set to 30 seconds.</span>
+  <form rsf:id="autodelay-form">
+    <span>
+      <input type="text" rsf:id="delay-input" />
+      <input type="submit" rsf:id="save-delay-button" value="Save Delay Time" />
+    </span>
+  </form>
+</div>
+
+<div rsf:id="test-bucket-div:">
+  <h4 rsf:id="bucket-id">ContentHostingTests</h4>
+  <form rsf:id="run-test-form">
+    <input type="submit" rsf:id="run-test-button" value="Run Test" />
+  </form>
+  <table>
+    <tbody>
+      <tr rsf:id="testcase-row:">
+        <td rsf:id="name">SomeTest</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</div>
+</body>
+</html>

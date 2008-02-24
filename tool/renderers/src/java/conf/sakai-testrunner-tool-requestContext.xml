@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<!-- Beans -->
+	<bean id="AdminTestRunnerBean" init-method="init" 
+	  class="org.sakaiproject.testrunner.tool.beans.AdminTestRunnerBean">
+	    <property name="testRunnerService" ref="org.sakaiproject.testrunner.TestRunnerService" />
+	</bean>
+	
+	<bean id="TestTrackerBean" class="org.sakaiproject.testrunner.tool.beans.TestTrackerBean">
+	    <property name="testRunnerService" ref="org.sakaiproject.testrunner.TestRunnerService" />
+	</bean>
+	
+	<bean id="TestStarterBean" class="org.sakaiproject.testrunner.tool.beans.TestStarterBean">
+	  <property name="tracker" ref="TestTrackerBean"></property>
+	</bean>
+
+	<!-- View Component Producers -->
+	<bean class="org.sakaiproject.testrunner.tool.producers.AdministerTestsProducer">
+	    <property name="testRunnerService" ref="org.sakaiproject.testrunner.TestRunnerService" />
+	</bean>
+	
+	<bean class="org.sakaiproject.testrunner.tool.producers.ResultsOverviewProducer">
+	    <property name="testTracker" ref="TestTrackerBean" />
+	</bean>
+	
+	<bean class="org.sakaiproject.testrunner.tool.producers.DetailedTestResultsProducer">
+	
+	</bean>
+	
+</beans>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <name>Sakai TestRunner Interface</name>
+   <groupId>org.sakaiproject</groupId>
+   <artifactId>sakai-testrunner-logic-api</artifactId>
+   <organization>
+      <name>CARET, Cambridge University</name>
+      <url>http://caret.cam.ac.uk/</url>
+   </organization>
+   <inceptionYear>2007</inceptionYear>
+   <packaging>jar</packaging>
+   <properties>
+      <deploy.target>shared</deploy.target>
+   </properties>
+
+   <parent>
+      <artifactId>sakai-testrunner-base</artifactId>
+      <groupId>org.sakaiproject</groupId>
+      <version>SNAPSHOT</version>
+      <relativePath>../../pom.xml</relativePath>
+   </parent>
+
+   <dependencies>
+
+      <!-- Spring dependencies -->
+      <dependency>
+         <groupId>${sakai.spring.groupId}</groupId>
+         <artifactId>${sakai.spring.artifactId}</artifactId>
+         <version>${sakai.spring.version}</version>
+         <scope>provided</scope>
+      </dependency>
+
+      <!-- we need this in shared for the APIs to work -->
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <version>3.8.1</version>
+         <scope>provided</scope>
+      </dependency>
+
+      <!-- Apache commons dependencies -->
+      <dependency>
+         <groupId>commons-logging</groupId>
+         <artifactId>commons-logging</artifactId>
+         <version>1.0.4</version>
+         <scope>provided</scope>
+      </dependency>
+
+      <!-- sakai dependencies -->
+      <dependency>
+         <groupId>org.sakaiproject</groupId>
+         <artifactId>sakai-authz-api</artifactId>
+         <version>${sakai.version}</version>
+         <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.sakaiproject</groupId>
+         <artifactId>sakai-entity-api</artifactId>
+         <version>${sakai.version}</version>
+         <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.sakaiproject</groupId>
+         <artifactId>sakai-tool-api</artifactId>
+         <version>${sakai.version}</version>
+         <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.sakaiproject</groupId>
+         <artifactId>sakai-util-api</artifactId>
+         <version>${sakai.version}</version>
+         <scope>provided</scope>
+      </dependency>
+
+   </dependencies>
+
+   <build>
+      <resources>
+         <resource>
+            <directory>${basedir}/src/java</directory>
+            <includes>
+               <include>**/*.xml</include>
+            </includes>
+            <filtering>false</filtering>
+         </resource>
+      </resources>
+   </build>
+
+</project>

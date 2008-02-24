@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+   <modelVersion>4.0.0</modelVersion>
+   <description>
+      This module contains dependencies for the TestRunner that should be added to shared if they
+      are not already there. At the moment this only includes JUnit.
+   </description>
+   <name>Sakai TestRunner Shared Deployment Descriptor</name>
+   <groupId>org.sakaiproject</groupId>
+   <artifactId>sakai-testrunner-shared-deploy</artifactId>
+   <organization>
+      <name>CARET, Cambridge University</name>
+      <url>http://caret.cam.ac.uk/</url>
+   </organization>
+   <inceptionYear>2007</inceptionYear>
+   <packaging>pom</packaging>
+   <properties>
+      <deploy.target>shared</deploy.target>
+   </properties>
+
+   <parent>
+      <artifactId>sakai-testrunner-base</artifactId>
+      <groupId>org.sakaiproject</groupId>
+      <version>SNAPSHOT</version>
+      <relativePath>../../pom.xml</relativePath>
+   </parent>
+
+   <dependencies>
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <version>3.8.1</version>
+      </dependency>
+   </dependencies>
+
+</project>

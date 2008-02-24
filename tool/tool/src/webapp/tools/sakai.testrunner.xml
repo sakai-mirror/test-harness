@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<registration>
+  <tool id="sakai.testrunner"
+        title="Test Runner"
+        description="Used for administering and running various JUnit tests that are registered with the test runner service">
+			
+    <category name="course" />
+    <category name="project" />
+    
+  </tool>	
+</registration>
