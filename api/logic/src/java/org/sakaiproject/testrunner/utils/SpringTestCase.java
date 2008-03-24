@@ -6,7 +6,6 @@ package org.sakaiproject.testrunner.utils;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -20,14 +19,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.PropertyResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.testrunner.utils.annotations.Autowired;
 import org.sakaiproject.testrunner.utils.annotations.Resource;
 import org.springframework.beans.factory.BeanFactoryUtils;
@@ -278,21 +275,24 @@ public class SpringTestCase extends TestCase implements ApplicationContextAware 
 	 * @throws Exception
 	 */
 	private static String getTomcatHome() throws Exception {
-		String testTomcatHome = System.getProperty("test.tomcat.home");
-		if ( testTomcatHome != null && testTomcatHome.length() > 0 ) {
-			log.debug("Using tomcat home: " + testTomcatHome);
-			return testTomcatHome;
-		} else {
-			String homeDir = System.getProperty("user.home");
-			File file = new File(homeDir + File.separatorChar + "build.properties");
-			FileInputStream fis = new FileInputStream(file);
-			PropertyResourceBundle rb = new PropertyResourceBundle(fis);
-			String tomcatHome = rb.getString("maven.tomcat.home");
-			log.debug("Tomcat home = " + tomcatHome);
-			return tomcatHome;
+		String home = null;
+		try {
+			home = System.getProperty("test.tomcat.home");
+			if ( null == home || home.trim().length() == 0 ) {
+				home = System.getProperty("maven.tomcat.home");
+			}
+		} catch (SecurityException e){
+			log.error("Unable to read maven.tomcat.home or test.tomcat.home properties: SecurityException: ");
+			e.printStackTrace();
 		}
+		if ( null == home || home.trim().length() == 0 ) {
+			log.error("Not found: test.tomcat.home or maven.tomcat.home");
+		} else {
+		    log.info("Using tomcat home: " + home);
+		}
+		return home;
 	}
-	
+	//TODO: catch sec exception && test for sakai.home
 	private static String getSakaiHome(String tomcatHome) throws Exception {
 		String sakaiHome = System.getProperty("test.sakai.home");
 		if (sakaiHome == null) {
