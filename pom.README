@@ -1,0 +1,82 @@
+     
+<!--
+	The following is proposed to be added to the master pom.
+
+	Default test phase is skipped (technicality?) so that 
+        two executions can be defined for the surefire plugin
+        (the default test phase mojo)
+	The first execution activates the surefire plugin to run
+	during the life-cyce test phase, this time configured to 
+	*not* be skipped, and to ignore conspicuously-named 
+	IntegrationTest clases.
+	The second execution activates the surefire plugin
+        during the integration-test life-cycle phase, after the
+	packaging cycle phase. During this execution, only the 
+	(named) IntegrationTest Classes are run.
+
+	More testing is needed to know if this pom structure interferes
+	with current projects' usage of the plugin. For example, should
+	the ineherited tag be added to each execution's confiuration?
+
+
+
+-->
+
+
+
+
+
+<plugin>
+         <inherited>true</inherited>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-surefire-plugin</artifactId>
+         <configuration>
+			<skip>true</skip>
+		 </configuration>
+		    <executions>
+          		<execution>
+          		  <id>sakai-it</id>
+          		  <phase>integration-test</phase>
+          		  <goals>
+          		    <goal>test</goal>
+          		  </goals>
+          		  <configuration>
+          		  	<skip>false</skip>
+
+			   		<includes>
+           		  		<include>**/*IntegrationTest*.java</include>
+				  		<include>**/*IntegrationTest.java</include>
+				  		<include>**/*IntegrationTestCase.java</include>
+		   		  	</includes>
+		   		  	<systemProperties>
+	               	 <property>
+	                  <name>test.tomcat.home</name>
+	                  <value>${test.tomcat.home}</value>
+	               	 </property>
+	           	  	</systemProperties>
+          		  </configuration>
+          		</execution>
+          		<execution>
+          		  <id>sakai-ut</id>
+          		  <phase>test</phase>
+          		  <goals>
+          		    <goal>test</goal>
+          		  </goals>
+          		  <configuration>
+          		  <skip>false</skip>
+	       		  <excludes>
+	              	<exclude>**/*IntegrationTest*.java</exclude>
+					<exclude>**/*IntegrationTest.java</exclude>
+					<exclude>**/*IntegrationTestCase.java</exclude>
+			   	  </excludes>
+			   	  <systemProperties>
+	               <property>
+	                  <name>test.tomcat.home</name>
+	                  <value>${test.tomcat.home}</value>
+	               </property>
+	           	  </systemProperties>
+          		  </configuration>
+          		</execution>
+        	</executions>
+           
+       </plugin>
