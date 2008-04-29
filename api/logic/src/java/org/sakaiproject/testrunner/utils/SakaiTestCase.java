@@ -28,6 +28,15 @@ public class SakaiTestCase extends SpringTestCase {
 	private static final Log log = LogFactory.getLog(SakaiTestCase.class);
 	protected static Object compMgr;
 	
+	public SakaiTestCase(String name){
+		super(name);
+	}
+
+	public SakaiTestCase(){
+		super();
+	}
+	   
+	
    private SessionManager sessionManager;
    @Resource(name="org.sakaiproject.tool.api.SessionManager")
    public void setSessionManager(SessionManager sessionManager) {

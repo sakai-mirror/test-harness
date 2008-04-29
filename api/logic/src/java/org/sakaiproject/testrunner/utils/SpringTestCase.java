@@ -60,6 +60,17 @@ public class SpringTestCase extends TestCase implements ApplicationContextAware 
    protected DecimalFormat df = new DecimalFormat("#,##0.00");
    private static final Log log = LogFactory.getLog(SpringTestCase.class);
    protected static Object compMgr;
+   private static final String MAVEN_CLASSLOADER_PKG = "org.apache.maven";
+   
+
+	public SpringTestCase(String name){
+		super(name);
+	}
+
+	public SpringTestCase(){
+		super();
+	}
+	
 
    private ApplicationContext applicationContext;
    public void setApplicationContext(ApplicationContext applicationContext) {
@@ -223,6 +234,7 @@ public class SpringTestCase extends TestCase implements ApplicationContextAware 
 	
 	//TODO: add BeforeClass/AfterClass annotation so that client classes don't have to configure this
 	protected static void oneTimeSetup() throws Exception {
+		log.debug("####################OneTimeSetup()");
 		if(compMgr == null) {
 			// Find the sakai home dir
 			String tomcatHome = getTomcatHome();
@@ -233,22 +245,30 @@ public class SpringTestCase extends TestCase implements ApplicationContextAware 
 			System.setProperty("sakai.home", sakaiHome);
 			System.setProperty("sakai.components.root", componentsDir);
 
-			log.debug("Starting the component manager");
-
 			// Add the sakai jars to the current classpath.  Note:  We are limited to using the sun jvm now
 			URL[] sakaiUrls = getJarUrls(new String[] {tomcatHome + "common/endorsed/",
 					tomcatHome + "common/lib/", tomcatHome + "shared/lib/"});
 			URLClassLoader appClassLoader = (URLClassLoader)Thread.currentThread().getContextClassLoader();
+			String cloaderPkgName = appClassLoader.getClass().getName();
+			
 			Method addMethod = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] {URL.class});
+			log.warn("ClassLoader package name: " + cloaderPkgName + 
+					"\n .......... this test appears to be running in "   + 
+					(cloaderPkgName.contains(MAVEN_CLASSLOADER_PKG)?"maven":"an Application Server"));
 			addMethod.setAccessible(true);
 			for(int i=0; i<sakaiUrls.length; i++) {
 				addMethod.invoke(appClassLoader, new Object[] {sakaiUrls[i]});
 			}
 			
-			Class clazz = Class.forName("org.sakaiproject.component.cover.ComponentManager");
+			log.warn("Starting the component manager");
+			
+			Class<?> clazz = Class.forName("org.sakaiproject.component.cover.ComponentManager");
 			compMgr = clazz.getDeclaredMethod("getInstance", (Class[])null).invoke((Object[])null, (Object[])null);
 
-			log.debug("Finished starting the component manager");
+			log.warn("Finished starting the component manager \n" + 
+					 "++++++++++++++++++++++++++++++++++++++++++\n" +
+					 "+     Integration tests starting         +\n" +
+					 "++++++++++++++++++++++++++++++++++++++++++\n\n");
 		}
 	}
 
@@ -256,7 +276,10 @@ public class SpringTestCase extends TestCase implements ApplicationContextAware 
 	 * Close the component manager when the tests finish.
 	 */
 	public static void oneTimeTearDown() {
-		//SessionManager.getCurrentSession().invalidate();
+		//SessionManager.getCurrentSession().invalidate(); \n" + 
+		 log.warn("\n++++++++++++++++++++++++++++++++++++++++++\n" +
+		 "+     Integration tests ended            +\n" +
+		 "++++++++++++++++++++++++++++++++++++++++++\n Shutting down component manager...\n");
 		if(compMgr != null) {
 			try {
 				Method closeMethod = compMgr.getClass().getMethod("close", new Class[0]);
@@ -288,7 +311,7 @@ public class SpringTestCase extends TestCase implements ApplicationContextAware 
 		if ( null == home || home.trim().length() == 0 ) {
 			log.error("Not found: test.tomcat.home or maven.tomcat.home");
 		} else {
-		    log.info("Using tomcat home: " + home);
+		    log.warn("Using tomcat home: " + home);
 		}
 		return home;
 	}
