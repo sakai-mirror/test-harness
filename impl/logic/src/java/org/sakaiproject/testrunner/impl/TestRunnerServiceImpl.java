@@ -4,6 +4,7 @@
 
 package org.sakaiproject.testrunner.impl;
 
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import junit.framework.TestResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.testrunner.TestRunnerService;
+import org.sakaiproject.testrunner.impl.tests.util.IntegrationTestLogAdaptor;
 import org.sakaiproject.testrunner.utils.TestRunnerUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -34,7 +36,11 @@ import org.springframework.context.ApplicationContextAware;
  */
 public class TestRunnerServiceImpl implements TestRunnerService, ApplicationContextAware {
 
-   private final static Log log = LogFactory.getLog(TestRunnerServiceImpl.class);
+   
+   private IntegrationTestLogAdaptor log = null;
+   private Log commonsLog = LogFactory.getLog(TestRunnerServiceImpl.class);
+   private final static String BUILDTIME_CLASSLOADER_PKG_NAME_FRAGMENT = "org.apache.maven";
+   private boolean isMavenRunning = false;
 
    private ApplicationContext applicationContext;
    public void setApplicationContext(ApplicationContext applicationContext) {
@@ -111,10 +117,30 @@ public class TestRunnerServiceImpl implements TestRunnerService, ApplicationCont
       this.testTypeMap = testTypeMap;
    }
 
+   public TestRunnerServiceImpl(){
+	   /*
+	    * This is for *this* project's unit testing... if the init() method gets called
+	    * it will override this...
+	    * 
+	    */ 
+	   commonsLog = LogFactory.getLog(TestRunnerServiceImpl.class);
+	   log = new IntegrationTestLogAdaptor(this, false); 	// using 'this' in the constructor is 
+	   										// unadvisable but I can't see the harm 
+	   										// for unit testing nor a better way
+   }
 
    public void init() {
-      log.debug("init: using application context: " + applicationContext.getDisplayName());
+      commonsLog.debug("init: using application context: " + applicationContext.getDisplayName());
+
+      URLClassLoader appClassLoader = (URLClassLoader)Thread.currentThread().getContextClassLoader();
+	  String cloaderPkgName = appClassLoader.getClass().getName();
+	  
+	  setMavenRunning( cloaderPkgName.contains(BUILDTIME_CLASSLOADER_PKG_NAME_FRAGMENT) );
+	  
+	  log = new IntegrationTestLogAdaptor(this, isMavenRunning());
+	  
       log.info("Testrunner is " + (enabled ? "enabled" : "DISABLED") 
+    		+ ": running in: " + (isMavenRunning() ? "maven (build-time)" : "an Application Server (run-time)")
             + ": integration testing: " + (testIntegration ? "on" : "OFF")
             + ": load testing: " + (testLoad ? "on" : "OFF")
             + ": data validation testing: " + (testValidity ? "on" : "OFF")
@@ -235,7 +261,9 @@ public class TestRunnerServiceImpl implements TestRunnerService, ApplicationCont
 
 
    public Map<Class<? extends TestCase>, TestResult> runTests(String testsId, String testsType) {
+	   
       Map<Class<? extends TestCase>, TestResult> m = null;
+
       if (enabled) {
          if (testsId == null && testsType == null) {
             // run all tests
@@ -287,7 +315,10 @@ public class TestRunnerServiceImpl implements TestRunnerService, ApplicationCont
       if (m == null) {
          m = new HashMap<Class<? extends TestCase>, TestResult>(0);
       }
-      return m;
+      
+	   
+      
+	   return m;
    }
 
 
@@ -457,4 +488,19 @@ public class TestRunnerServiceImpl implements TestRunnerService, ApplicationCont
       testDelaySeconds = seconds;
    }
 
+ /* a string test is conducted against the package name of the current class loader:
+  *  if it contains org.apache.maven, then it is assumed that this services is being booted
+  *  by a ComponentManager that is in turn being booted by a maven build
+  */
+   private boolean isMavenRunning() {
+	   return isMavenRunning;
+   }
+
+
+   private void setMavenRunning(boolean isMavenRunning) {
+	   this.isMavenRunning = isMavenRunning;
+   }
+   
+   
+   
 }
