@@ -1,6 +1,19 @@
      
 <!--
-	The following is proposed to be added to the master pom.
+	The following are two proposals to change Sakai's 
+	'global' POM's:
+        
+	The first is proposed to be added to the master POM.
+        The second proposal is an addition to each profile of
+        the root POM.
+
+	For more information:
+        http://confluence.sakaiproject.org/confluence/x/OgAlAQ
+
+-->
+
+<!--
+  For <sakai-source-root>/master/pom.xml:
 
 	Default test phase is skipped (technicality?) so that 
         two executions can be defined for the surefire plugin
@@ -41,7 +54,7 @@
           		    <goal>test</goal>
           		  </goals>
           		  <configuration>
-          		  	<skip>false</skip>
+          		  	<skip>${sakai.integration-test.skip}</skip>
 
 			   		<includes>
            		  		<include>**/*IntegrationTest*.java</include>
@@ -80,3 +93,20 @@
         	</executions>
            
        </plugin>
+
+
+
+<!-- 
+  For <sakai-source-root>/pom.xml:
+
+  In order for the above variable 'sakai.integration-test.skip' to be
+  interpolated for the master POM, the following should be added to
+  *all* the profiles of Sakai's root POM. ('All' that is, unless there
+  comes an integration-test profile some day)
+
+-->
+
+     <properties>
+        <sakai.integration-test.skip>true</sakai.integration-test.skip>
+      </properties>
+
