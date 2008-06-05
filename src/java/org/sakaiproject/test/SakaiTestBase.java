@@ -57,38 +57,14 @@ import junit.framework.TestCase;
  */
 public abstract class SakaiTestBase extends TestCase {
 	private static final Log log = LogFactory.getLog(SakaiTestBase.class);
-	protected static Object compMgr;
 	
 	/**
 	 * Initialize the component manager once for all tests, and log in as admin.
 	 */
 	protected static void oneTimeSetup() throws Exception {
-		if(compMgr == null) {
-			// Find the sakai home dir
+		if(!ComponentContainerEmulator.isStarted()) {
 			String tomcatHome = getTomcatHome();
-			String sakaiHome = getSakaiHome(tomcatHome);
-			String componentsDir = tomcatHome + "components/";
-			
-			// Set the system properties needed by the sakai component manager
-			System.setProperty("sakai.home", sakaiHome);
-			System.setProperty("sakai.components.root", componentsDir);
-
-			log.debug("Starting the component manager");
-
-			// Add the sakai jars to the current classpath.  Note:  We are limited to using the sun jvm now
-			URL[] sakaiUrls = getJarUrls(new String[] {tomcatHome + "common/endorsed/",
-					tomcatHome + "common/lib/", tomcatHome + "shared/lib/"});
-			URLClassLoader appClassLoader = (URLClassLoader)Thread.currentThread().getContextClassLoader();
-			Method addMethod = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] {URL.class});
-			addMethod.setAccessible(true);
-			for(int i=0; i<sakaiUrls.length; i++) {
-				addMethod.invoke(appClassLoader, new Object[] {sakaiUrls[i]});
-			}
-			
-			Class clazz = Class.forName("org.sakaiproject.component.cover.ComponentManager");
-			compMgr = clazz.getDeclaredMethod("getInstance", (Class[])null).invoke((Object[])null, (Object[])null);
-
-			log.debug("Finished starting the component manager");
+			ComponentContainerEmulator.startComponentManager(tomcatHome, getSakaiHome(tomcatHome));
 		}
 	}
 
@@ -97,13 +73,8 @@ public abstract class SakaiTestBase extends TestCase {
 	 */
 	public static void oneTimeTearDown() {
 		//SessionManager.getCurrentSession().invalidate();
-		if(compMgr != null) {
-			try {
-				Method closeMethod = compMgr.getClass().getMethod("close", new Class[0]);
-				closeMethod.invoke(compMgr, new Object[0]);
-			} catch (Exception e) {
-				log.error(e);
-			}
+		if(ComponentContainerEmulator.isStarted()) {
+			ComponentContainerEmulator.stopComponentManager();
 		}
 	}
 
@@ -139,43 +110,6 @@ public abstract class SakaiTestBase extends TestCase {
 	}
 	
 	/**
-	 * Builds an array of file URLs from a directory path.
-	 * 
-	 * @param dirPath
-	 * @return
-	 * @throws Exception
-	 */
-	private static URL[] getJarUrls(String dirPath) throws Exception {
-		File dir = new File(dirPath);
-		File[] jars = dir.listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				if(pathname.getName().startsWith("xml-apis")) {
-					return false;
-				}
-				return true;
-			}
-		});
-		URL[] urls = new URL[jars.length];
-		for(int i = 0; i < jars.length; i++) {
-			urls[i] = jars[i].toURL();
-		}
-		return urls;
-	}
-
-	private static URL[] getJarUrls(String[] dirPaths) throws Exception {
-		List jarList = new ArrayList();
-		
-		// Add all of the tomcat jars
-		for(int i=0; i<dirPaths.length; i++) {
-			jarList.addAll(Arrays.asList(getJarUrls(dirPaths[i])));
-		}
-
-		URL[] urlArray = new URL[jarList.size()];
-		jarList.toArray(urlArray);
-		return urlArray;
-	}
-	
-	/**
 	 * Convenience method to get a service bean from the Sakai component manager.
 	 * 
 	 * @param beanId The id of the service
@@ -183,15 +117,9 @@ public abstract class SakaiTestBase extends TestCase {
 	 * @return The service, or null if the ID is not registered
 	 */
 	protected static final Object getService(String beanId) {
-		try {
-			Method getMethod = compMgr.getClass().getMethod("get", new Class[] {String.class});
-			return getMethod.invoke(compMgr, new Object[] {beanId});
-		} catch (Exception e) {
-			log.error(e);
-			return null;
-		}
+		return ComponentContainerEmulator.getService(beanId);
 	}
-	
+
 	/**
 	 * Convenience method to create a somewhat unique site id for testing.  Useful
 	 * in tests that need to create a site to run tests upon.
