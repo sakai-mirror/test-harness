@@ -25,6 +25,7 @@ package org.sakaiproject.test;
 import java.io.File;
 import java.io.FileFilter;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class ComponentContainerEmulator {
 	private static final Log log = LogFactory.getLog(ComponentContainerEmulator.class);
 	private static Object componentManager;
 	
-	public static void startComponentManager(String tomcatHome, String sakaiHome) throws Exception {
+	public static void startComponentManager(String tomcatHome, String sakaiHome) {
 		if (log.isDebugEnabled()) log.debug("Starting the component manager; sakaiHome=" + sakaiHome + ", tomcatHome=" + tomcatHome);
 
 		// Set the system properties needed by the sakai component manager
@@ -52,14 +53,24 @@ public class ComponentContainerEmulator {
 		URL[] sakaiUrls = getJarUrls(new String[] {tomcatHome + "common/endorsed/",
 				tomcatHome + "common/lib/", tomcatHome + "shared/lib/"});
 		URLClassLoader appClassLoader = (URLClassLoader)Thread.currentThread().getContextClassLoader();
-		Method addMethod = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] {URL.class});
-		addMethod.setAccessible(true);
-		for(int i=0; i<sakaiUrls.length; i++) {
-			addMethod.invoke(appClassLoader, new Object[] {sakaiUrls[i]});
+		try {
+			Method addMethod = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] {URL.class});
+			addMethod.setAccessible(true);
+			for(int i=0; i<sakaiUrls.length; i++) {
+				addMethod.invoke(appClassLoader, new Object[] {sakaiUrls[i]});
+			}
+			
+			Class<?> clazz = Class.forName("org.sakaiproject.component.cover.ComponentManager");
+			componentManager = clazz.getDeclaredMethod("getInstance", (Class[])null).invoke((Object[])null, (Object[])null);
+		} catch (Exception e) {
+			// Wrap as runtime exception, since it's unlikely the caller will want to do
+			// anything but die.
+			if (e instanceof RuntimeException) {
+				throw (RuntimeException)e;
+			} else {
+				throw new RuntimeException(e);
+			}
 		}
-		
-		Class<?> clazz = Class.forName("org.sakaiproject.component.cover.ComponentManager");
-		componentManager = clazz.getDeclaredMethod("getInstance", (Class[])null).invoke((Object[])null, (Object[])null);
 
 		if (log.isDebugEnabled()) log.debug("Finished starting the component manager");
 	}
@@ -80,6 +91,24 @@ public class ComponentContainerEmulator {
 	}
 	
 	/**
+	 * @return a Spring ApplicationContext which can be specified as the parent
+	 * for a client-loaded application context. It is NOT guaranteed to be useful
+	 * for any other purpose.
+	 */
+	public static Object getContainerApplicationContext() {
+		Object applicationContext = null;
+		if (componentManager != null) {
+			try {
+				Method getContextMethod = componentManager.getClass().getMethod("getApplicationContext", new Class[0]);
+				applicationContext = getContextMethod.invoke(componentManager, new Object[0]);
+			} catch (Exception e) {
+				log.error(e);
+			}
+		}
+		return applicationContext;
+	}
+	
+	/**
 	 * Convenience method to get a service bean from the Sakai component manager.
 	 * 
 	 * @param beanId The id of the service
@@ -91,7 +120,7 @@ public class ComponentContainerEmulator {
 			Method getMethod = componentManager.getClass().getMethod("get", new Class[] {String.class});
 			return getMethod.invoke(componentManager, new Object[] {beanId});
 		} catch (Exception e) {
-			log.error(e);
+			log.error(e, e);
 			return null;
 		}
 	}
@@ -103,8 +132,9 @@ public class ComponentContainerEmulator {
 	 * @return
 	 * @throws Exception
 	 */
-	private static URL[] getJarUrls(String dirPath) throws Exception {
+	private static URL[] getJarUrls(String dirPath) {
 		File dir = new File(dirPath);
+		log.warn("dirPath=" + dirPath + ", dir=" + dir);
 		File[] jars = dir.listFiles(new FileFilter() {
 			public boolean accept(File pathname) {
 				if(pathname.getName().startsWith("xml-apis")) {
@@ -115,12 +145,16 @@ public class ComponentContainerEmulator {
 		});
 		URL[] urls = new URL[jars.length];
 		for(int i = 0; i < jars.length; i++) {
-			urls[i] = jars[i].toURL();
+			try {
+				urls[i] = jars[i].toURL();
+			} catch (MalformedURLException e) {
+				log.error(e, e);
+			}
 		}
 		return urls;
 	}
 
-	private static URL[] getJarUrls(String[] dirPaths) throws Exception {
+	private static URL[] getJarUrls(String[] dirPaths) {
 		List<URL> jarList = new ArrayList<URL>();
 		
 		// Add all of the tomcat jars
