@@ -46,9 +46,12 @@ public class ComponentContainerEmulator {
 		if (log.isDebugEnabled()) log.debug("Starting the component manager; sakaiHome=" + sakaiHome + ", tomcatHome=" + tomcatHome);
 		
 		// Normalize file path.
-		char lastChar = tomcatHome.charAt(tomcatHome.length());
+		char lastChar = tomcatHome.charAt(tomcatHome.length() - 1);
 		if ((lastChar != '/') && (lastChar != '\\')) {
 			tomcatHome += "/";
+		}
+		if (sakaiHome == null) {
+			sakaiHome = tomcatHome + "sakai/";
 		}
 		
 		// Set the system properties needed by the sakai component manager

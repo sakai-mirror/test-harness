@@ -64,7 +64,8 @@ public abstract class SakaiTestBase extends TestCase {
 	protected static void oneTimeSetup() throws Exception {
 		if(!ComponentContainerEmulator.isStarted()) {
 			String tomcatHome = getTomcatHome();
-			ComponentContainerEmulator.startComponentManager(tomcatHome, getSakaiHome(tomcatHome));
+			String sakaiHome = System.getProperty("test.sakai.home");	// Can be null
+			ComponentContainerEmulator.startComponentManager(tomcatHome, sakaiHome);
 		}
 	}
 
@@ -99,14 +100,6 @@ public abstract class SakaiTestBase extends TestCase {
 			log.debug("Tomcat home = " + tomcatHome);
 			return tomcatHome;
 		}
-	}
-	
-	private static String getSakaiHome(String tomcatHome) throws Exception {
-		String sakaiHome = System.getProperty("test.sakai.home");
-		if (sakaiHome == null) {
-			sakaiHome = tomcatHome + File.separatorChar + "sakai" + File.separatorChar;
-		}
-		return sakaiHome;
 	}
 	
 	/**
