@@ -44,7 +44,13 @@ public class ComponentContainerEmulator {
 	
 	public static void startComponentManager(String tomcatHome, String sakaiHome) {
 		if (log.isDebugEnabled()) log.debug("Starting the component manager; sakaiHome=" + sakaiHome + ", tomcatHome=" + tomcatHome);
-
+		
+		// Normalize file path.
+		char lastChar = tomcatHome.charAt(tomcatHome.length());
+		if ((lastChar != '/') && (lastChar != '\\')) {
+			tomcatHome += "/";
+		}
+		
 		// Set the system properties needed by the sakai component manager
 		System.setProperty("sakai.home", sakaiHome);
 		System.setProperty("sakai.components.root", tomcatHome + "components/");
@@ -134,7 +140,7 @@ public class ComponentContainerEmulator {
 	 */
 	private static URL[] getJarUrls(String dirPath) {
 		File dir = new File(dirPath);
-		log.warn("dirPath=" + dirPath + ", dir=" + dir);
+		if (log.isInfoEnabled()) log.info("dirPath=" + dirPath + ", dir=" + dir);
 		File[] jars = dir.listFiles(new FileFilter() {
 			public boolean accept(File pathname) {
 				if(pathname.getName().startsWith("xml-apis")) {
