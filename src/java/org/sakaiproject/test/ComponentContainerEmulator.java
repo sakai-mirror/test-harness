@@ -89,6 +89,7 @@ public class ComponentContainerEmulator {
 			try {
 				Method closeMethod = componentManager.getClass().getMethod("close", new Class[0]);
 				closeMethod.invoke(componentManager, new Object[0]);
+				componentManager = null;
 			} catch (Exception e) {
 				log.error(e);
 			}

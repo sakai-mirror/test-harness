@@ -21,23 +21,15 @@
 package org.sakaiproject.test;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.PropertyResourceBundle;
+
+import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-
-import junit.framework.TestCase;
 
 /**
  * An extension of JUnit's TestCase that launches the Sakai component manager.
@@ -59,9 +51,9 @@ public abstract class SakaiTestBase extends TestCase {
 	private static final Log log = LogFactory.getLog(SakaiTestBase.class);
 	
 	/**
-	 * Initialize the component manager once for all tests, and log in as admin.
+	 * Initialize the component manager once for all tests.
 	 */
-	protected static void oneTimeSetup() throws Exception {
+	public static void oneTimeSetup() throws Exception {
 		if(!ComponentContainerEmulator.isStarted()) {
 			String tomcatHome = getTomcatHome();
 			String sakaiHome = System.getProperty("test.sakai.home");	// Can be null
@@ -132,7 +124,7 @@ public abstract class SakaiTestBase extends TestCase {
 	 * 
 	 * @return The dynamic proxy to use as a collaborator
 	 */
-	public static final Object getServiceProxy(Class clazz, InvocationHandler handler) {
-		return Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[] {clazz}, handler);
+	public static final <T> T getServiceProxy(Class<T> clazz, InvocationHandler handler) {
+		return (T)Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[] {clazz}, handler);
 	}
 }
