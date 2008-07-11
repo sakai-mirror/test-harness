@@ -174,6 +174,34 @@ public class ComponentContainerEmulator {
 	}
 	
 	/**
+	 * Point test.sakai.home at the test's resources area (typically
+	 * "target/test-classes" for a Maven build) so that test-specific sakai.properties
+	 * can be loaded.
+	 * 
+	 * @param clazz typically the class of the testing code
+	 */
+	public static final void setTestSakaiHome(Class<?> clazz) {
+		setTestSakaiHome(clazz, "");
+	}
+	
+	/**
+	 * Point test.sakai.home at a directory in the test's resources area (typically
+	 * "target/test-classes" for a Maven build) so that test-specific sakai.properties
+	 * can be loaded.
+	 * 
+	 * @param clazz typically the class of the testing code
+	 * @param pathPrefix the directory holding "sakai.properties" or "sakai-configuration.xml".
+	 * 		an empty string indicates that the top of the classes directory should be used
+	 */
+	public static final void setTestSakaiHome(Class<?> clazz, String pathPrefix) {
+		URL sakaiHomeUrl = clazz.getClassLoader().getResource(pathPrefix);
+		if (log.isDebugEnabled()) log.debug("clazz=" + clazz.getName() + ", sakaiHomeUrl=" + sakaiHomeUrl);
+		if (sakaiHomeUrl != null) {
+			System.setProperty("test.sakai.home", sakaiHomeUrl.getFile());
+		}
+	}
+	
+	/**
 	 * Builds an array of file URLs from a directory path.
 	 * 
 	 * @param dirPath

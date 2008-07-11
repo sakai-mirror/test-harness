@@ -21,6 +21,7 @@
 package org.sakaiproject.test;
 
 import static org.sakaiproject.test.ComponentContainerEmulator.getPassthroughSystemProperty;
+import static org.sakaiproject.test.ComponentContainerEmulator.setTestSakaiHome;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -115,6 +116,13 @@ public abstract class SakaiTestBase extends TestCase {
 	 */
 	protected String generateSiteId() {
 		return "site-" + getClass().getName() + "-" + Math.floor(Math.random()*100000);
+	}
+	
+	protected static final void setSakaiHome(Class<?> clazz) {
+		setTestSakaiHome(clazz);
+	}
+	protected static final void setSakaiHome(Class<?> clazz, String path) {
+		setTestSakaiHome(clazz, path);
 	}
 	
 	/**
