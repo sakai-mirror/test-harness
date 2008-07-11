@@ -1,16 +1,53 @@
+With the latest changes to test-harness, I've been able to run integration
+tests from Eclipse more easily. The remaining issue is that Eclipse doesn't
+have access to Maven system properties, and therefore doesn't know where to find
+"test.tomcat.home" or "maven.tomcat.home". Here are two workarounds:
+
+
+APPROACH A) Define system environment variables for TEST_TOMCAT_HOME and/or CATALINA_HOME
+
+Now you should be able to choose "Run as..." / "JUnit Test" from your test
+class file without more ado.
+
+
+APPROACH B) Define VM arguments for the individual tests
+
+1. "Open Run Dialog".
+
+2. Create a JUnit configuration pointing to your test class.
+
+3. On the "Arguments" tab, add something like the following line to "VM arguments":
+
+	-Dtest.tomcat.home=${env_var:CATALINA_HOME}
+
+From then on, run or debug the test by selecting it from Eclipse's drop-down menus.
+(Sadly, I haven't found a way to set default VM arguments for the JUnit launcher.)
+
+
+If for some reason neither of these work for you, Ian's original notes might be
+helpful, and so I've appended them below.
+
+Happy testing!
+
+Ray Davis, ray@media.berkeley.edu
+
+
+****************************************
+
+
 First off, thanks to Josh, this project has saved me hours of work.
 ------
 If you prefer to run you JUnit tests inside eclipse, you can with a little setup first.
 
 HOWEVER BE WARNED:
-This will break some of the seperation with classloaders, and you could end up with 
-dependencies on jars not in shared within classes that are in shared. 
+This will break some of the seperation with classloaders, and you could end up with
+dependencies on jars not in shared within classes that are in shared.
 
 eg letting implementation leak into Hibernate pojos.
 
 If this happens, your app will probably not work in the real environment.
 
-So dont stop testing on the maven command line or in tomcat, and be really carefull 
+So dont stop testing on the maven command line or in tomcat, and be really carefull
 what you put where.
 
 ---------
@@ -19,12 +56,12 @@ what you put where.
 You need to do a full maven build to get the runtime environment so follow the instructions
 in the README-INTEGRATION-TESTING.txt first.
 
-Once you have done that you need to 
+Once you have done that you need to
 1. Setup you project classpath.
 2. Ensure that all your resources are referenced.
 
 
-This project contains all the current known dependencies for the test-harness from the 
+This project contains all the current known dependencies for the test-harness from the
 /shared and /common these are registered as MAVEN_REPO jars so you MUST have built Sakia.
 Also this project is configured to use TRUNK.
 
@@ -32,14 +69,14 @@ That being said, this project exports all the necessary jars. So to enable your 
 this project to your project dependencies and include the exported classpath entries
 
 Eclipse 3.1
-In you project go to 
+In you project go to
 Run->Debug....
 or
 Run->Run...
 
 Select your test-harness JUnit class
 Select the classpath tab
-add Project 
+add Project
 select the test-harness project and select both
 "Add Exported Entries of project" and
 "Add Dependant projects of this project"
@@ -72,12 +109,12 @@ button and the change does appear. I have not had to do a maven sakai for 2 days
 Changes to components.xml do need to be re-deployed
 
 3.
-I couldn't get the maven itest target to work with my project, which is why I tried eclipse. 
+I couldn't get the maven itest target to work with my project, which is why I tried eclipse.
 
 
-4. 
-If you have problems with components initialising, change the log4j.properties (after copying it into 
-your classpath space), and enable the ComponentManager logger. Then you will see all the normal 
+4.
+If you have problems with components initialising, change the log4j.properties (after copying it into
+your classpath space), and enable the ComponentManager logger. Then you will see all the normal
 catalina.out log trafic. This makes it much easier to test component loading.
 
 5.

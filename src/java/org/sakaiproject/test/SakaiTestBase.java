@@ -23,11 +23,8 @@ package org.sakaiproject.test;
 import static org.sakaiproject.test.ComponentContainerEmulator.getPassthroughSystemProperty;
 import static org.sakaiproject.test.ComponentContainerEmulator.setTestSakaiHome;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.util.PropertyResourceBundle;
 
 import junit.framework.TestCase;
 
@@ -58,7 +55,7 @@ public abstract class SakaiTestBase extends TestCase {
 	 */
 	public static void oneTimeSetup() throws Exception {
 		if(!ComponentContainerEmulator.isStarted()) {
-			String tomcatHome = getTomcatHome();
+			String tomcatHome = findTomcatHome();
 			String sakaiHome = getPassthroughSystemProperty("test.sakai.home");	// Can be null
 			ComponentContainerEmulator.startComponentManager(tomcatHome, sakaiHome);
 		}
@@ -81,20 +78,26 @@ public abstract class SakaiTestBase extends TestCase {
 	 * @return
 	 * @throws Exception
 	 */
-	private static String getTomcatHome() throws Exception {
-		String testTomcatHome = getPassthroughSystemProperty("test.tomcat.home");
-		if ( testTomcatHome != null && testTomcatHome.length() > 0 ) {
-			log.debug("Using tomcat home: " + testTomcatHome);
-			return testTomcatHome;
+	public static String findTomcatHome() throws Exception {
+		String tomcatHome = getPassthroughSystemProperty("test.tomcat.home");
+		if ( tomcatHome != null && tomcatHome.length() > 0 ) {
+			log.debug("Using test.tomcat.home: " + tomcatHome);
 		} else {
-			String homeDir = getPassthroughSystemProperty("user.home");
-			File file = new File(homeDir + File.separatorChar + "build.properties");
-			FileInputStream fis = new FileInputStream(file);
-			PropertyResourceBundle rb = new PropertyResourceBundle(fis);
-			String tomcatHome = rb.getString("maven.tomcat.home");
-			log.debug("Tomcat home = " + tomcatHome);
-			return tomcatHome;
+			tomcatHome = getPassthroughSystemProperty("maven.tomcat.home");
+			if ( tomcatHome != null && tomcatHome.length() > 0 ) {
+				log.debug("Using maven.tomcat.home: " + tomcatHome);
+			} else {
+				// For the sake of Eclipse, provide a non-Maven-ish approach.
+				tomcatHome = System.getenv("TEST_CATALINA_HOME");
+				if ( tomcatHome != null && tomcatHome.length() > 0 ) {
+					log.debug("Using TEST_CATALINA_HOME: " + tomcatHome);
+				} else {
+					tomcatHome = System.getenv("CATALINA_HOME");
+					log.debug("Using CATALINA_HOME: " + tomcatHome);
+				}
+			}
 		}
+		return tomcatHome;
 	}
 	
 	/**

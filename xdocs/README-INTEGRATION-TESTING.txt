@@ -43,11 +43,9 @@ Your test suite should call oneTimeSetup and oneTimeTearDown, like so:
 
 
 *** IMPORTANT NOTE #2: The test harness requires that you have a typical Sakai
-development environment configured.  It expects either:
-a) a "test.tomcat.home" property pointing to a tomcat instance with all of the sakai
-components deployed
-b) a ,m2/settings.xml file in your $HOME directory, where it can find a default
-profile with a "maven.tomcat.home" property set.
+development environment configured.  It expects a "test.tomcat.home" property
+(or, if that fails, the "maven.tomcat.home" property) that points to a Tomcat
+instance with all of the required components deployed.
 
 If a "test.sakai.home" system property is defined, the test harness loads your
 sakai.properties file from that directory. Otherwise it uses the file found in
@@ -59,6 +57,19 @@ testing project.  Understand that the data in this database will be modified by
 integration tests, and failing or poorly written tests (those that don't clean up after
 themselves) may leave garbage in your DB.  Using an in-memory hsql database is
 recommended.
+
+As an alternative to defining "test.sakai.home" from the command line, your
+tests can use their own test-specific "sakai.properties". To do that, just
+add a "sakai.properties" to a test resources directory and then call the
+"setSakaiHome" static method to point there. Here's an example from
+the User Directory Service integration tests:
+
+public class AuthenticatedUserProviderTest extends SakaiTestBase {
+	...
+	static {
+		// Use "resources/nocache/sakai.properties"
+		setSakaiHome(AuthenticatedUserProviderTest.class, "nocache");
+	}
 
 4) To run integration tests, simply start from the integration-test directory
 and run a normal maven test goal:
@@ -76,6 +87,7 @@ for Maven-run tests. Here's an example:
       <id>sakai</id>
       <properties>
         <maven.tomcat.home>${env.CATALINA_HOME}</maven.tomcat.home>
+        <test.tomcat.home>${env.TEST_CATALINA_HOME}</test.tomcat.home>
         <!-- Provides fuller reporting than the default. -->
         <surefire.reportFormat>plain</surefire.reportFormat>
         <!-- Display test results in normal output rather than in report files. -->
