@@ -44,7 +44,7 @@ public class ComponentContainerEmulator {
 	
 	public static void startComponentManager(String tomcatHome, String sakaiHome) {
 		if (log.isDebugEnabled()) log.debug("Starting the component manager; sakaiHome=" + sakaiHome + ", tomcatHome=" + tomcatHome);
-		
+
 		// Normalize file path.
 		char lastChar = tomcatHome.charAt(tomcatHome.length() - 1);
 		if ((lastChar != '/') && (lastChar != '\\')) {
@@ -133,6 +133,44 @@ public class ComponentContainerEmulator {
 			log.error(e, e);
 			return null;
 		}
+	}
+	
+	/**
+	 * Work around Maven's inability to simply pass through selected system properties.
+	 * By default, Surefire tests inherit no Java properties from the Maven process itself.
+	 * Only property names explicitly set in the plug-in's "systemProperties" configuration
+	 * will be available. So, for example, to pass the "sakai.home" property, you'd need
+	 * something like this:
+	 * 
+	 * <pre>
+	 * &lt;plugin&gt;
+	 *   &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+	 *   &lt;artifactId&gt;maven-surefire-plugin&lt;/artifactId&gt;
+	 *   &lt;configuration&gt;
+	 *     &lt;systemProperties&gt;
+	 *       &lt;property&gt;
+	 *         &lt;name&gt;sakai.home&lt;/name&gt;
+	 *         &lt;value&gt;${sakai.home}&lt;/value&gt;
+	 *       &lt;/property&gt;
+	 *     &lt;/systemProperties&gt;
+	 *   &lt;/configuration&gt;
+	 * &lt;/plugin&gt;
+	 * </pre>
+	 * 
+	 * This doesn't work for optional Java properties, however. In the example above,
+	 * if "sakai.home" is undefined, the Surefire plug-in will pass through a
+	 * bogus string value of "${sakai.home}" rather than null. This utiltiy method
+	 * checks for that condition.
+	 * 
+	 * @return The Java system property value, or null if the value appears to
+	 * be a Maven property reference itself.
+	 */
+	public static final String getPassthroughSystemProperty(String propertyName) {
+		String value = System.getProperty(propertyName);
+		if ((value != null) && value.matches("\\$\\{.+\\}")) {
+			value = null;
+		}
+		return value;
 	}
 	
 	/**

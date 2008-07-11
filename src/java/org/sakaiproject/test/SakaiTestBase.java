@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.test;
 
+import static org.sakaiproject.test.ComponentContainerEmulator.getPassthroughSystemProperty;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.InvocationHandler;
@@ -56,7 +58,7 @@ public abstract class SakaiTestBase extends TestCase {
 	public static void oneTimeSetup() throws Exception {
 		if(!ComponentContainerEmulator.isStarted()) {
 			String tomcatHome = getTomcatHome();
-			String sakaiHome = System.getProperty("test.sakai.home");	// Can be null
+			String sakaiHome = getPassthroughSystemProperty("test.sakai.home");	// Can be null
 			ComponentContainerEmulator.startComponentManager(tomcatHome, sakaiHome);
 		}
 	}
@@ -79,12 +81,12 @@ public abstract class SakaiTestBase extends TestCase {
 	 * @throws Exception
 	 */
 	private static String getTomcatHome() throws Exception {
-		String testTomcatHome = System.getProperty("test.tomcat.home");
+		String testTomcatHome = getPassthroughSystemProperty("test.tomcat.home");
 		if ( testTomcatHome != null && testTomcatHome.length() > 0 ) {
 			log.debug("Using tomcat home: " + testTomcatHome);
 			return testTomcatHome;
 		} else {
-			String homeDir = System.getProperty("user.home");
+			String homeDir = getPassthroughSystemProperty("user.home");
 			File file = new File(homeDir + File.separatorChar + "build.properties");
 			FileInputStream fis = new FileInputStream(file);
 			PropertyResourceBundle rb = new PropertyResourceBundle(fis);
