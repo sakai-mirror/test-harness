@@ -42,6 +42,20 @@ public class ComponentContainerEmulator {
 	private static final Log log = LogFactory.getLog(ComponentContainerEmulator.class);
 	private static Object componentManager;
 	
+	/**
+	 * Configures the emulated component container to run integration tests.
+	 */
+	public static void startComponentManagerForTest() {
+		startComponentManager(findTestTomcatHome(), findTestSakaiHome());
+	}
+	
+	/**
+	 * Configures the emulated component container to run against the default deployment environment.
+	 */
+	public static void startComponentManager() {
+		startComponentManager(findTomcatHome(), null);
+	}
+	
 	public static void startComponentManager(String tomcatHome, String sakaiHome) {
 		if (log.isDebugEnabled()) log.debug("Starting the component manager; sakaiHome=" + sakaiHome + ", tomcatHome=" + tomcatHome);
 
@@ -50,12 +64,11 @@ public class ComponentContainerEmulator {
 		if ((lastChar != '/') && (lastChar != '\\')) {
 			tomcatHome += "/";
 		}
-		if (sakaiHome == null) {
-			sakaiHome = tomcatHome + "sakai/";
-		}
 		
 		// Set the system properties needed by the sakai component manager
-		System.setProperty("sakai.home", sakaiHome);
+		if ((sakaiHome != null) && (sakaiHome.length() > 0)) {
+			System.setProperty("sakai.home", sakaiHome);
+		}
 		System.setProperty("sakai.components.root", tomcatHome + "components/");
 		
 		// Add the sakai jars to the current classpath.  Note:  We are limited to using the sun jvm now
@@ -200,7 +213,68 @@ public class ComponentContainerEmulator {
 			System.setProperty("test.sakai.home", sakaiHomeUrl.getFile());
 		}
 	}
+
+	/**
+	 * Looks for a Tomcat home.
+	 * 
+	 * @return the value of the Java system property "maven.tomcat.home" or of the CATALINA_HOME
+	 *   environment variable
+	 * @throws Exception
+	 */
+	public static final String findTomcatHome() {
+		String tomcatHome = getPassthroughSystemProperty("maven.tomcat.home");
+		if ( tomcatHome != null && tomcatHome.length() > 0 ) {
+			if (log.isDebugEnabled()) log.debug("Using maven.tomcat.home: " + tomcatHome);
+		} else {
+			// For the sake of Eclipse, provide a non-Maven-ish approach.
+			tomcatHome = System.getenv("CATALINA_HOME");
+			if (log.isDebugEnabled()) log.debug("Using CATALINA_HOME: " + tomcatHome);
+		}
+		return tomcatHome;
+	}
 	
+	/**
+	 * For backwards compatibility, checks for the Java system property
+	 * "test.tomcat.home" or environment variable "TEST_CATALINA_HOME".
+	 * If either is set, use it. If neither is set, go ahead and use the
+	 * standard Tomcat home logic (which is the preferred approach).
+	 * 
+	 * @return
+	 */
+	public static final String findTestTomcatHome() {
+		String tomcatHome = getPassthroughSystemProperty("test.tomcat.home");
+		if ((tomcatHome != null) && (tomcatHome.length() > 0)) {
+			if (log.isDebugEnabled()) log.debug("Using test.tomcat.home: " + tomcatHome);
+		} else {
+			// For the sake of Eclipse, provide a non-Maven-ish approach.
+			tomcatHome = System.getenv("TEST_CATALINA_HOME");
+			if ((tomcatHome != null) && (tomcatHome.length() > 0)) {
+				if (log.isDebugEnabled()) log.debug("Using TEST_CATALINA_HOME: " + tomcatHome);
+			} else {
+				tomcatHome = findTomcatHome();
+			}
+		}
+		return tomcatHome;
+	}
+	
+	/**
+	 * @return the value of the "test.sakai.home" Java system property, the value
+	 * of the TEST_SAKAI_HOME environment variable, or null if neither is set.
+	 */
+	public static final String findTestSakaiHome() {
+		String sakaiHome = getPassthroughSystemProperty("test.sakai.home");	// Can be null
+		if ((sakaiHome != null) && (sakaiHome.length() > 0)) {
+			if (log.isDebugEnabled()) log.debug("Using test.sakai.home: " + sakaiHome);
+		} else {
+			// For the sake of Eclipse, provide a non-Maven-ish approach.
+			sakaiHome = System.getenv("TEST_SAKAI_HOME");
+			if ((sakaiHome != null) && (sakaiHome.length() > 0)) {
+				if (log.isDebugEnabled()) log.debug("Using TEST_SAKAI_HOME: " + sakaiHome);
+			}
+		}
+		return sakaiHome;
+	}
+
 	/**
 	 * Builds an array of file URLs from a directory path.
 	 * 

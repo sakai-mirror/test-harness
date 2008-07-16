@@ -20,16 +20,12 @@
  **********************************************************************************/
 package org.sakaiproject.test;
 
-import static org.sakaiproject.test.ComponentContainerEmulator.getPassthroughSystemProperty;
 import static org.sakaiproject.test.ComponentContainerEmulator.setTestSakaiHome;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
 import junit.framework.TestCase;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * An extension of JUnit's TestCase that launches the Sakai component manager.
@@ -48,16 +44,13 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public abstract class SakaiTestBase extends TestCase {
-	private static final Log log = LogFactory.getLog(SakaiTestBase.class);
 	
 	/**
 	 * Initialize the component manager once for all tests.
 	 */
 	public static void oneTimeSetup() throws Exception {
 		if(!ComponentContainerEmulator.isStarted()) {
-			String tomcatHome = findTomcatHome();
-			String sakaiHome = getPassthroughSystemProperty("test.sakai.home");	// Can be null
-			ComponentContainerEmulator.startComponentManager(tomcatHome, sakaiHome);
+			ComponentContainerEmulator.startComponentManagerForTest();
 		}
 	}
 
@@ -65,39 +58,9 @@ public abstract class SakaiTestBase extends TestCase {
 	 * Close the component manager when the tests finish.
 	 */
 	public static void oneTimeTearDown() {
-		//SessionManager.getCurrentSession().invalidate();
 		if(ComponentContainerEmulator.isStarted()) {
 			ComponentContainerEmulator.stopComponentManager();
 		}
-	}
-
-	/**
-	 * Fetches the "maven.tomcat.home" property from the maven build.properties
-	 * file located in the user's $HOME directory.
-	 * 
-	 * @return
-	 * @throws Exception
-	 */
-	public static String findTomcatHome() throws Exception {
-		String tomcatHome = getPassthroughSystemProperty("test.tomcat.home");
-		if ( tomcatHome != null && tomcatHome.length() > 0 ) {
-			log.debug("Using test.tomcat.home: " + tomcatHome);
-		} else {
-			tomcatHome = getPassthroughSystemProperty("maven.tomcat.home");
-			if ( tomcatHome != null && tomcatHome.length() > 0 ) {
-				log.debug("Using maven.tomcat.home: " + tomcatHome);
-			} else {
-				// For the sake of Eclipse, provide a non-Maven-ish approach.
-				tomcatHome = System.getenv("TEST_CATALINA_HOME");
-				if ( tomcatHome != null && tomcatHome.length() > 0 ) {
-					log.debug("Using TEST_CATALINA_HOME: " + tomcatHome);
-				} else {
-					tomcatHome = System.getenv("CATALINA_HOME");
-					log.debug("Using CATALINA_HOME: " + tomcatHome);
-				}
-			}
-		}
-		return tomcatHome;
 	}
 	
 	/**
