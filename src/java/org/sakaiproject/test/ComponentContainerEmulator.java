@@ -58,6 +58,10 @@ public class ComponentContainerEmulator {
 	
 	public static void startComponentManager(String tomcatHome, String sakaiHome) {
 		if (log.isDebugEnabled()) log.debug("Starting the component manager; sakaiHome=" + sakaiHome + ", tomcatHome=" + tomcatHome);
+		if (isStarted()) {
+			if (log.isInfoEnabled()) log.info("Component manager already exists, so not starting after all");
+			return;
+		}
 
 		// Normalize file path.
 		char lastChar = tomcatHome.charAt(tomcatHome.length() - 1);
@@ -98,6 +102,7 @@ public class ComponentContainerEmulator {
 	}
 	
 	public static void stopComponentManager() {
+		if (log.isDebugEnabled()) log.debug("Starting the component manager");
 		if(componentManager != null) {
 			try {
 				Method closeMethod = componentManager.getClass().getMethod("close", new Class[0]);
@@ -106,6 +111,8 @@ public class ComponentContainerEmulator {
 			} catch (Exception e) {
 				log.error(e);
 			}
+		} else {
+			if (log.isInfoEnabled()) log.info("Component manager already stopped");				
 		}
 	}
 	

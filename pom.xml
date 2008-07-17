@@ -11,24 +11,31 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-test-harness</artifactId>
   <packaging>jar</packaging>
-  
+
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/test-harness/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/test-harness/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/test-harness/trunk</url>
   </scm>
-  
+
 
   <properties>
     <deploy.target/>
   </properties>
   <dependencies>
-<!--  Sakai plugin -->
-<!-- JUnit -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
+      <version>3.8.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>${sakai.spring.mock.artifactId}</artifactId>
+      <version>${sakai.spring.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
