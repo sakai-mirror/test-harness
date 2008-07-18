@@ -34,6 +34,11 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * Emulate the Sakai component environment set up by a running Tomcat container. 
@@ -153,6 +158,18 @@ public class ComponentContainerEmulator {
 			log.error(e, e);
 			return null;
 		}
+	}
+	
+	/**
+	 * Convenience method to get a singleton service bean whose ID is the same
+	 * as the input interface.
+	 * 
+	 * @param clazz the interface of the singleton service
+	 * @return the implementing service
+	 */
+	public static final <T> T getService(Class<T> clazz) {
+		String beanId = clazz.getName();
+		return (T) getService(beanId);
 	}
 	
 	/**
@@ -280,6 +297,29 @@ public class ComponentContainerEmulator {
 			}
 		}
 		return sakaiHome;
+	}
+	
+	/**
+	 * Convenience routine to support the frequent testing need to switch authn/authz identities.
+	 * 
+	 * @param userEid
+	 */
+	public static final void actAsUserEid(String userEid) {
+		if (log.isDebugEnabled()) log.debug("actAsUserEid=" + userEid);
+		UserDirectoryService userDirectoryService = getService(UserDirectoryService.class);
+		SessionManager sessionManager = getService(SessionManager.class);;
+		AuthzGroupService authzGroupService = getService(AuthzGroupService.class);
+		String userId;
+		try {
+			userId = userDirectoryService.getUserId(userEid);
+		} catch (UserNotDefinedException e) {
+			log.error("Could not act as user EID=" + userEid, e);
+			return;
+		}
+		Session session = sessionManager.getCurrentSession();
+		session.setUserEid(userEid);
+		session.setUserId(userId);
+		authzGroupService.refreshUser(userId);
 	}
 
 	/**
