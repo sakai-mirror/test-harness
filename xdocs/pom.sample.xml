@@ -48,10 +48,6 @@
           <!-- Pass through the most important Java system properties -->
           <systemProperties>
             <property>
-              <name>test.tomcat.home</name>
-              <value>${test.tomcat.home}</value>
-            </property>
-            <property>
               <name>maven.tomcat.home</name>
               <value>${maven.tomcat.home}</value>
             </property>

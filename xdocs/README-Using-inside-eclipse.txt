@@ -1,31 +1,31 @@
 With the latest changes to test-harness, I've been able to run integration
-tests from Eclipse more easily. The remaining issue is that Eclipse doesn't
+tests from Eclipse very easily. The only issue is that Eclipse doesn't
 have access to Maven system properties, and therefore doesn't know where to find
-"test.tomcat.home" or "maven.tomcat.home". Here are two workarounds:
+"test.sakai.home" or "maven.tomcat.home". Here are two workarounds:
 
+APPROACH A) Define system environment variables for CATALINA_HOME and TEST_SAKAI_HOME
 
-APPROACH A) Define system environment variables for TEST_TOMCAT_HOME and/or CATALINA_HOME
-
-Now you should be able to choose "Run as..." / "JUnit Test" from your test
-class file without more ado.
-
+  Now you should be able to choose "Run as..." / "JUnit Test" from your test
+  class file without more ado.
 
 APPROACH B) Define VM arguments for the individual tests
 
-1. "Open Run Dialog".
+  1. "Open Run Dialog".
 
-2. Create a JUnit configuration pointing to your test class.
+  2. Create a JUnit configuration pointing to your test class.
 
-3. On the "Arguments" tab, add something like the following line to "VM arguments":
+  3. On the "Arguments" tab, add something like the following line to "VM arguments":
 
-	-Dtest.tomcat.home=${env_var:CATALINA_HOME}
+	-Dmaven.tomcat.home=WHEREVER/IT/IS
 
-From then on, run or debug the test by selecting it from Eclipse's drop-down menus.
-(Sadly, I haven't found a way to set default VM arguments for the JUnit launcher.)
+  From then on, run or debug the test by selecting it from Eclipse's drop-down menus.
+  Sadly, I haven't found a way to set default VM arguments for the JUnit launcher.
 
+(It's also possible that the "m2eclipse" plugin would help, but I haven't
+tried it yet.)
 
-If for some reason neither of these work for you, Ian's original notes might be
-helpful, and so I've appended them below.
+If for some reason none of these suggestions work for you, Ian's original notes
+might be helpful, and so I've appended them below.
 
 Happy testing!
 
