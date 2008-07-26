@@ -70,8 +70,11 @@ public abstract class SakaiTestBase extends TestCase {
 	 * 
 	 * @return The service, or null if the ID is not registered
 	 */
-	protected static final Object getService(String beanId) {
+	protected static Object getService(String beanId) {
 		return ComponentContainerEmulator.getService(beanId);
+	}
+	protected static <T> T getService(Class<T> clazz) {
+		return ComponentContainerEmulator.getService(clazz);
 	}
 
 	/**
