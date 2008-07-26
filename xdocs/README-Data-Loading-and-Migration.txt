@@ -39,8 +39,8 @@ public class GradesFinalizerExec {
 	public static String TERM_EID = "Spring 2008";
 	public static void main(String[] args) {
 		startComponentManager();
-		SiteService siteService = getService(SiteService);
-		GradebookService gradebookService = getService(GradebookService);
+		SiteService siteService = getService(SiteService.class);
+		GradebookService gradebookService = getService(GradebookService.class);
 		actAsUserEid("admin");
 
 		Map<String, String> sitePropertyCriteria = new HashMap<String, String>();
