@@ -136,7 +136,13 @@ public class AuthenticatedUserProviderTest extends SakaiTestBase {
 	}
 
 6) To run your tests, simply start from the integration-test directory
-and request the normal maven test goal:
+and request the normal Maven test goal:
 
 mvn clean test
 
+If you have multiple service-level tests and start each with a fresh
+component manager, running all of them will take a noticeable amount
+of time and kick up a fair amount of console noise. To focus on a
+particular test class, just use the normal Maven approach:
+
+mvn -Dtest=AuthenticationCacheTest clean test

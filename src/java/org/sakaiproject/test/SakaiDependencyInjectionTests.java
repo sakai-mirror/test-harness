@@ -37,16 +37,12 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
  * Allows for Spring dependency injection from Sakai while using an emulated component
  * container (i.e., without running Tomcat or another web server).
  * 
- * There are two flavors of test:
- * <ul>
- * <li>Basic - If the code you're testing doesn't have any need for its own Spring
- * configuration files or its own Spring application context, you'll end up with
- * Sakai's top-level application context as your own.
- * <li>Child - If your test class returns any locations from "getConfigLocations()",
- * you'll instead get a child application context with the Sakai component-level
- * context as a parent. This models the bean visibility you get with a Sakai web
- * application (although the classloading still won't be completely realistic).
- * </ul>
+ * As with the Spring superclass, AbstractDependencyInjectionSpringContextTests,
+ * you can set up your own Spring application context by returning a list
+ * of resource locations from "getConfigLocations()", The difference is that
+ * your application context will have Sakai's component-level context as its parent.
+ * This models the bean visibility you get with a Sakai web application (although
+ * the classloading still won't be completely realistic).
  * 
  * If you run more than one integration test and you need a clean start between
  * tests to avoid static debris in the component system, make sure to include
@@ -60,17 +56,15 @@ public class SakaiDependencyInjectionTests extends AbstractDependencyInjectionSp
 		if (log.isDebugEnabled()) log.debug("createApplicationContext locations=" + Arrays.asList(locations));
 		ComponentContainerEmulator.startComponentManagerForTest();		
 		ConfigurableApplicationContext componentContext = (ConfigurableApplicationContext)ComponentContainerEmulator.getContainerApplicationContext();
-		if (locations.length > 0) {
-			// WARNING: Copied from the superclass! The only change is to add a 
-			// parent application context to the application context constructor.
-			GenericApplicationContext context = new GenericApplicationContext(componentContext);
-			customizeBeanFactory(context.getDefaultListableBeanFactory());
-			new XmlBeanDefinitionReader(context).loadBeanDefinitions(locations);
-			context.refresh();
-			return context;
-		} else {
-			return componentContext;
-		}
+
+		// WARNING: Copied from the superclass! The only change is to add a 
+		// parent application context to the application context constructor.
+		GenericApplicationContext context = new GenericApplicationContext(componentContext);
+		customizeBeanFactory(context.getDefaultListableBeanFactory());
+		new XmlBeanDefinitionReader(context).loadBeanDefinitions(locations);
+		context.refresh();
+		
+		return context;
 	}
 
 	@Override

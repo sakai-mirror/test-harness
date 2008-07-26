@@ -42,7 +42,7 @@ public class ChildContextDependencyInjectionTest extends SakaiDependencyInjectio
 		return new String[] {"childcontext/test-spring.xml"};
 	}
 
-	public void testLocalContextAndConfiguration() throws Exception {
+	public void testLocalContext() throws Exception {
 		Assert.assertNotNull(serverConfigurationService);
 		Assert.assertNotNull(someBean);
 		Assert.assertNotNull(someBean.getSiteService());
@@ -50,7 +50,9 @@ public class ChildContextDependencyInjectionTest extends SakaiDependencyInjectio
 		// Make sure the Component Manager can't see locally defined beans.
 		SomeBean anAttempt = (SomeBean)ComponentContainerEmulator.getService("someBean");
 		Assert.assertNull(anAttempt);
-		
+	}
+
+	public void testLocalConfiguration() throws Exception {
 		// Make sure that our test-specific Sakai configuration was used.
 		Assert.assertEquals("successful.test", serverConfigurationService.getServerId());
 	}
