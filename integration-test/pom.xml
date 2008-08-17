@@ -22,7 +22,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-test-harness</artifactId>
-      <version>${sakai.version}</version>
+      
       <scope>test</scope>
     </dependency>
 <!--org.sakaiprojectsakai-component-api-->
