@@ -22,7 +22,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-test-harness</artifactId>
-      
       <scope>test</scope>
     </dependency>
 <!--org.sakaiprojectsakai-component-api-->
