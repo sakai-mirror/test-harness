@@ -37,37 +37,18 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.9</version>
     </dependency>
   </dependencies>
-  <developers>
-    <developer>
-      <id>jholtzman</id>
-      <name>Josh Holtzman</name>
-      <email>jholtzman@berkeley.edu</email>
-      <organization>UC Berkeley</organization>
-      <organizationUrl>http://media.berkeley.edy</organizationUrl>
-      <roles>
-        <role>Lead Developer</role>
-      </roles>
-      <timezone>-8</timezone>
-    </developer>
-  </developers>
   <reports/>
   <build>
     <resources>
       <resource>
-        <directory>src/conf</directory>
-        <includes>
-          <include>log4j.properties</include>
-        </includes>
+        <directory>src/resources</directory>
       </resource>
     </resources>
-<!--nagEmailAddress: jholtzman@berkeley.edu -->
   </build>
 </project>
