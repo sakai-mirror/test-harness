@@ -75,6 +75,8 @@
         <directory>src/resources</directory>
       </resource>
     </resources>
+	<!-- TODO Fix in master POM - SAK-14064 -->
+    <testSourceDirectory>src/test/java</testSourceDirectory>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
