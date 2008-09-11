@@ -124,15 +124,15 @@ Case B) Slower and cleaner
           <forkMode>pertest</forkMode>
 
 5) If you need to tailor Sakai's configuration specifically for your
-tests, add a "sakai.properties" to a test resources directory and then
+tests, add "sakai.properties" to a test resources directory and then
 call the "setSakaiHome" static method to point there. Here's an example from
-the User Directory Service integration tests:
+the test-harness's own integration tests:
 
-public class AuthenticatedUserProviderTest extends SakaiTestBase {
+public class ChildContextDependencyInjectionTest extends SakaiDependencyInjectionTests {
 	...
 	static {
-		// Sakai will use "resources/nocache/sakai.properties"
-		setSakaiHome(AuthenticatedUserProviderTest.class, "nocache");
+		// Sakai will use "resources/childcontext/sakai.properties"
+		setSakaiHome("childcontext");
 	}
 
 6) To run your tests, simply start from the integration-test directory
@@ -145,4 +145,4 @@ component manager, running all of them will take a noticeable amount
 of time and kick up a fair amount of console noise. To focus on a
 particular test class, just use the normal Maven approach:
 
-mvn -Dtest=AuthenticationCacheTest clean test
+mvn -Dtest=ChildContextDependencyInjectionTest clean test

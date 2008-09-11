@@ -76,8 +76,8 @@ public class SakaiDependencyInjectionTests extends AbstractDependencyInjectionSp
 		ComponentContainerEmulator.stopComponentManager();
 	}
 
-	protected static final void setSakaiHome(Class<?> clazz, String path) {
-		setTestSakaiHome(clazz, path);
+	protected static final void setSakaiHome(String path) {
+		setTestSakaiHome(path);
 	}
 
 }

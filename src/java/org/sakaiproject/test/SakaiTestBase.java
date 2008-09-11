@@ -87,11 +87,8 @@ public abstract class SakaiTestBase extends TestCase {
 		return "site-" + getClass().getName() + "-" + Math.floor(Math.random()*100000);
 	}
 	
-	protected static final void setSakaiHome(Class<?> clazz) {
-		setTestSakaiHome(clazz);
-	}
-	protected static final void setSakaiHome(Class<?> clazz, String path) {
-		setTestSakaiHome(clazz, path);
+	protected static final void setSakaiHome(String path) {
+		setTestSakaiHome(path);
 	}
 	
 	/**

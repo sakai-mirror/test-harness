@@ -34,7 +34,7 @@ public class ChildContextDependencyInjectionTest extends SakaiDependencyInjectio
 	private SomeBean someBean;
 	
 	static {
-		setSakaiHome(ChildContextDependencyInjectionTest.class, "childcontext");
+		setSakaiHome("childcontext");
 	}
 
 	@Override
