@@ -17,23 +17,8 @@
     <url>https://source.sakaiproject.org/svn/test-harness/trunk</url>
   </scm>
   <properties>
-    <deploy.target/>
-    <integration-test.skip>true</integration-test.skip>
+    <skipLongTests>true</skipLongTests>
   </properties>
-  <profiles>
-    <profile>
-      <id>all-tests</id>
-      <activation>
-        <property>
-          <name>allTests</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <properties>
-        <integration-test.skip>false</integration-test.skip>
-      </properties>
-    </profile>
-  </profiles>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -75,43 +60,14 @@
         <directory>src/resources</directory>
       </resource>
     </resources>
-	<!-- TODO Fix in master POM - SAK-14064 -->
     <testSourceDirectory>src/test/java</testSourceDirectory>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.4.3</version>
         <configuration>
-          <skipTests>true</skipTests>
+          <skipTests>${skipLongTests}</skipTests>
+          <forkMode>pertest</forkMode>
         </configuration>
-        <executions>
-          <execution>
-            <phase>integration-test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <skipTests>${integration-test.skip}</skipTests>
-              <systemProperties>
-                <property>
-                  <name>test.sakai.home</name>
-                  <value>${test.sakai.home}</value>
-                </property>
-                <property>
-                  <name>maven.tomcat.home</name>
-                  <value>${maven.tomcat.home}</value>
-                </property>
-              </systemProperties>
-              <!--
-              	Component Manager configuration tests need to start off
-              	completely clean to avoid noise from leftover static
-              	variables.
-              -->
-              <forkMode>pertest</forkMode>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
