@@ -27,7 +27,7 @@ two Java system properties defined:
        files. I usually want automated regression tests to run
        against an in-memory database and with out-of-the-box default
        settings. However, in certain cases I might want to run a test
-       against a specific database, or let the test code set up its own
+       against a specific database, or to let the test code set up its own
        configuration.
 
 For example, here's my ".m2/settings.xml" file:
@@ -62,11 +62,18 @@ WRITING SERVICE INTEGRATION TESTS
 You can follow these steps to add integration tests to your sakai project:
 
 1) Create a new maven project in your module named "MYPROJECT-integration-test".
-Do NOT include this subproject in the "modules" list of your top-level project's
-"pom.xml". If you do, every normal build will automatically try to build and
-run integration tests. This will make you and others unhappy.
 
 2) Use the pom.sample.xml file as a template for setting up your build.
+It's configured so that tests do *not* run unless you explicitly clear
+the "skipLongTests" variable:
+
+  mvn -DskipLongTests=false test
+
+Alternatively, you can avoid all the special configuration by
+simply not including your integration-test directory in your
+project's top-level POM. In this case, your test code won't even
+be compiled unless you explicitly move to that directory before
+running Maven.
 
 3) Create a src/test directory and add your testing code. The Java source
 files should be rooted at "src/test/java". Any resources needed by your
@@ -74,7 +81,7 @@ tests (a log4j.properties file, for example) should be kept at
 "src/test/resources". Your test cases can extend "SakaiTestBase" (a simple
 convenience wrapper around JUnit's "TestCase") or "SakaiDependencyInjectionTests"
 (which lets you autowire Sakai services by simply declaring a setter for them).
-You can find simple examples of both in "test-harness/integration-test".
+You can find simple examples of both in "test-harness/src/test".
 
 Or you can use your own favorite test technology and explicitly call
 "ComponentContainerEmulator" to gain access to Sakai services.
@@ -138,11 +145,11 @@ public class ChildContextDependencyInjectionTest extends SakaiDependencyInjectio
 6) To run your tests, simply start from the integration-test directory
 and request the normal Maven test goal:
 
-mvn clean test
+mvn -DskipLongTests=false clean test
 
 If you have multiple service-level tests and start each with a fresh
 component manager, running all of them will take a noticeable amount
 of time and kick up a fair amount of console noise. To focus on a
 particular test class, just use the normal Maven approach:
 
-mvn -Dtest=ChildContextDependencyInjectionTest clean test
+mvn -DskipLongTests=false -Dtest=ChildContextDependencyInjectionTest clean test
